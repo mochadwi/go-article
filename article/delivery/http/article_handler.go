@@ -7,12 +7,12 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	models "github.com/mochadwi/go-article/models"
+	"github.com/mochadwi/go-article/models"
 
 	articleUcase "github.com/mochadwi/go-article/article"
 	"github.com/labstack/echo"
 
-	validator "gopkg.in/go-playground/validator.v9"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type ResponseError struct {
@@ -22,7 +22,7 @@ type HttpArticleHandler struct {
 	AUsecase articleUcase.ArticleUsecase
 }
 
-func (a *HttpArticleHandler) FetchArticle(c echo.Context) error {
+func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 
 	numS := c.QueryParam("num")
 	num, _ := strconv.Atoi(numS)
@@ -38,6 +38,23 @@ func (a *HttpArticleHandler) FetchArticle(c echo.Context) error {
 	}
 	c.Response().Header().Set(`X-Cursor`, nextCursor)
 	return c.JSON(http.StatusOK, listAr)
+}
+
+func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
+
+	title := c.Param("title")
+
+	ctx := c.Request().Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	art, err := a.AUsecase.GetByTitle(ctx, title)
+
+	if err != nil {
+		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+	return c.JSON(http.StatusOK, art)
 }
 
 func (a *HttpArticleHandler) GetByID(c echo.Context) error {
@@ -69,7 +86,7 @@ func isRequestValid(m *models.Article) (bool, error) {
 	return true, nil
 }
 
-func (a *HttpArticleHandler) Store(c echo.Context) error {
+func (a *HttpArticleHandler) Create(c echo.Context) error {
 	var article models.Article
 	err := c.Bind(&article)
 	if err != nil {
@@ -134,8 +151,8 @@ func NewArticleHttpHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
 		AUsecase: us,
 	}
 
-	e.GET("/article", handler.FetchArticle)
-	e.POST("/article", handler.Store)
-	e.GET("/article/:id", handler.GetByID)
-	e.DELETE("/article/:id", handler.Delete)
+	e.GET("/article", handler.GetAll)
+	e.POST("/article", handler.Create)
+	e.GET("/article/:title", handler.GetByTitle)
+	e.PUT("/article/:id", handler.Delete)
 }
