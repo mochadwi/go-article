@@ -109,6 +109,41 @@ func (a *HttpArticleHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, ar)
 }
 
+func (a *HttpArticleHandler) Update(c echo.Context) error {
+	var idA, err = strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		return c.JSON(http.StatusNoContent, err.Error())
+	}
+
+	var id = int64(idA)
+	var article = &models.Article{
+		ID: id,
+	}
+
+	err = c.Bind(&article)
+
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	if ok, err := isRequestValid(article); !ok {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	ctx := c.Request().Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	ar, err := a.AUsecase.Update(ctx, article)
+
+	if err != nil {
+		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+	return c.JSON(http.StatusCreated, ar)
+}
+
 func (a *HttpArticleHandler) Delete(c echo.Context) error {
 	idP, err := strconv.Atoi(c.Param("id"))
 	id := int64(idP)
@@ -154,5 +189,5 @@ func NewArticleHttpHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
 	e.GET("/article", handler.GetAll)
 	e.POST("/article", handler.Create)
 	e.GET("/article/:title", handler.GetByTitle)
-	e.PUT("/article/:id", handler.Delete)
+	e.PUT("/article/:id", handler.Update)
 }

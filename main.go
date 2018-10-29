@@ -8,12 +8,12 @@ import (
 	"os"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/labstack/echo"
 	httpDeliver "github.com/mochadwi/go-article/article/delivery/http"
 	articleRepo "github.com/mochadwi/go-article/article/repository"
 	articleUcase "github.com/mochadwi/go-article/article/usecase"
 	"github.com/mochadwi/go-article/middleware"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/labstack/echo"
 	"github.com/spf13/viper"
 )
 
