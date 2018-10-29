@@ -1,23 +1,19 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/labstack/echo"
-	articleDeliverHttpEcho "github.com/mochadwi/go-article/features/article/delivery/httpecho"
-	articleRepo "github.com/mochadwi/go-article/features/article/repository"
-	articleUcase "github.com/mochadwi/go-article/features/article/usecase"
-	ratingDeliverHttpEcho "github.com/mochadwi/go-article/features/rating/delivery/httpecho"
-	ratingRepo "github.com/mochadwi/go-article/features/rating/repository"
-	ratingUcase "github.com/mochadwi/go-article/features/rating/usecase"
+	httpDeliver "github.com/mochadwi/go-article/article/delivery/http"
+	articleRepo "github.com/mochadwi/go-article/article/repository"
+	articleUcase "github.com/mochadwi/go-article/article/usecase"
 	"github.com/mochadwi/go-article/middleware"
-	"github.com/mochadwi/go-article/models"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/labstack/echo"
 	"github.com/spf13/viper"
 )
 
@@ -42,46 +38,30 @@ func main() {
 	dbUser := viper.GetString(`database.user`)
 	dbPass := viper.GetString(`database.pass`)
 	dbName := viper.GetString(`database.name`)
-
-	connection := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable", dbUser, dbPass, dbHost, dbPort, dbName)
-
-	dbConn, err := gorm.Open(`postgres`, connection)
-	dbConn.LogMode(true)
-
+	connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
+	val := url.Values{}
+	val.Add("parseTime", "1")
+	val.Add("loc", "Asia/Jakarta")
+	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
+	dbConn, err := sql.Open(`mysql`, dsn)
 	if err != nil && viper.GetBool("debug") {
 		fmt.Println(err)
 	}
-
-	err = dbConn.DB().Ping()
+	err = dbConn.Ping()
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 
-	defer func() {
-		err = dbConn.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	// Migrate the schema
-	dbConn.AutoMigrate(&models.Article{})
-	dbConn.AutoMigrate(&models.Rating{})
-
+	defer dbConn.Close()
+	e := echo.New()
 	middL := middleware.InitMiddleware()
+	e.Use(middL.CORS)
+	ar := articleRepo.NewMysqlArticleRepository(dbConn)
 
-	echoStart := echo.New()
-	echoStart.Use(middL.CORS)
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
+	au := articleUcase.NewArticleUsecase(ar, timeoutContext)
+	httpDeliver.NewArticleHttpHandler(e, au)
 
-	articleR := articleRepo.NewGormsqlArticleRepository(dbConn)
-	articleU := articleUcase.NewArticleUsecase(articleR, timeoutContext)
-	articleDeliverHttpEcho.NewArticleHttpEchoHandler(echoStart, articleU)
-
-	ratingR := ratingRepo.NewGormsqlRatingRepository(dbConn)
-	ratingU := ratingUcase.NewRatingUsecase(ratingR, timeoutContext)
-	ratingDeliverHttpEcho.NewRatingHttpEchoHandler(echoStart, ratingU)
-
-	echoStart.Start(viper.GetString("server.address"))
+	e.Start(viper.GetString("server.address"))
 }
