@@ -9,6 +9,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/google/go-cmp/cmp"
 	"fmt"
+	"strconv"
 )
 
 type gormsqlArticleRepository struct {
@@ -21,12 +22,11 @@ func NewGormsqlArticleRepository(Conn *gorm.DB) article.ArticleRepository {
 }
 
 func (m *gormsqlArticleRepository) GetAll(ctx context.Context, cursor string, num int64) (*[]*models.Article, error) {
-
-	// TODO: Handle paging and cursor
 	//m.Conn.Begin()
 
 	var result []*models.Article
-	errQuery := models.NewArticleQuerySet(m.Conn).All(&result)
+	var cursorInt, _ = strconv.ParseInt(cursor, 10, 64)
+	errQuery := models.NewArticleQuerySet(m.Conn).IDGt(cursorInt).Limit(int(num)).All(&result)
 
 	if errQuery != nil {
 		logrus.Error(errQuery)
