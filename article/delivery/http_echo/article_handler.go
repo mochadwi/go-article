@@ -212,13 +212,18 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 		return c.JSON(response.Code, response)
 	}
 
-	response.Code = http.StatusCreated
+	response.Code = http.StatusOK
 	response.Message = models.DATA_UPDATED_SUCCESS
 	response.Data = ar
 	return c.JSON(response.Code, response)
 }
 
 func (a *HttpArticleHandler) Delete(c echo.Context) error {
+	var response = &models.BaseResponse{
+		RequestID: "",
+		Now:       time.Now().Unix(),
+	}
+
 	idP, err := strconv.Atoi(c.Param("id"))
 	id := int64(idP)
 	ctx := c.Request().Context()
@@ -226,13 +231,19 @@ func (a *HttpArticleHandler) Delete(c echo.Context) error {
 		ctx = context.Background()
 	}
 
-	_, err = a.AUsecase.Delete(ctx, id)
+	status, err := a.AUsecase.Delete(ctx, id)
 
 	if err != nil {
-
-		return c.JSON(getStatusCode(err), models.BaseResponse{Message: err.Error()})
+		response.Code = getStatusCode(err)
+		response.Message = string(err.Error())
+		response.Data = status
+		return c.JSON(response.Code, response)
 	}
-	return c.NoContent(http.StatusNoContent)
+
+	response.Code = http.StatusNoContent
+	response.Message = models.DATA_DELETED_SUCCESS
+	response.Data = status
+	return c.JSON(response.Code, response)
 }
 
 func getStatusCode(err error) int {

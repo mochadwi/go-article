@@ -83,18 +83,10 @@ func (m *gormsqlArticleRepository) Create(ctx context.Context, a *models.Article
 }
 
 func (m *gormsqlArticleRepository) Delete(ctx context.Context, id int64) (bool, error) {
-	var ac models.Article
-
-	if err := models.NewArticleQuerySet(m.Conn).IDEq(id).One(&ac); err != nil {
-		return false, err
-	}
 
 	// This method doesn't delete the data, for backup purpose
 	// it only update the deleted_at fields
-	ac.Delete(m.Conn)
-
-	if errs := m.Conn.GetErrors(); len(errs) > 0 {
-		err := errs[0]
+	if err := models.NewArticleQuerySet(m.Conn).IDEq(id).Delete(); err != nil {
 		return false, err
 	} // end Delete
 

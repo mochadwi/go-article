@@ -9,4 +9,5 @@ var (
 	DATA_AVAILABLE_SUCCESS = fmt.Sprint("Data is available")
 	DATA_CREATED_SUCCESS = fmt.Sprint("Data created successfully")
 	DATA_UPDATED_SUCCESS = fmt.Sprint("Data updated successfully")
+	DATA_DELETED_SUCCESS = fmt.Sprint("Data deleted successfully")
 )
