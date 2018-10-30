@@ -67,6 +67,9 @@ func (a *articleUsecase) GetByTitle(c context.Context, title string) (*models.Ar
 		return nil, err
 	}
 
+	//fmt.Print("Ucase: ")
+	//fmt.Println(res)
+
 	return res, nil
 }
 

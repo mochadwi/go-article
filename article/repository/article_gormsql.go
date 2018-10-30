@@ -22,6 +22,8 @@ func NewGormsqlArticleRepository(Conn *gorm.DB) article.ArticleRepository {
 func (m *gormsqlArticleRepository) GetAll(ctx context.Context, cursor string, num int64) (*[]*models.Article, error) {
 
 	// TODO: Handle paging and cursor
+	//m.Conn.Begin()
+
 	var result []*models.Article
 	errQuery := models.NewArticleQuerySet(m.Conn).All(&result)
 
@@ -52,18 +54,22 @@ func (m *gormsqlArticleRepository) GetByID(ctx context.Context, id int64) (*mode
 
 func (m *gormsqlArticleRepository) GetByTitle(ctx context.Context, title string) (*models.Article, error) {
 
-	var ac *models.Article
-	if errQuery := models.NewArticleQuerySet(m.Conn).TitleEq(title).One(ac); errQuery != nil {
+	//m.Conn.Begin()
+	var ac models.Article
+	if errQuery := models.NewArticleQuerySet(m.Conn).TitleEq(title).One(&ac); errQuery != nil {
 		logrus.Error(errQuery)
 		return nil, errQuery
 	}
 
 	// TODO: Check this if it, redundant?
-	if ac == nil {
+	if &ac == nil {
 		return nil, models.NOT_FOUND_ERROR
 	}
 
-	return ac, nil
+	//fmt.Print("Repo: ")
+	//fmt.Println(ac)
+	//defer m.Conn.Close()
+	return &ac, nil
 }
 
 func (m *gormsqlArticleRepository) Create(ctx context.Context, a *models.Article) (int64, error) {

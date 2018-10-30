@@ -42,6 +42,7 @@ func main() {
 	connection := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable", dbUser, dbPass, dbHost, dbPort, dbName)
 	//fmt.Println(connection)
 	dbConn, err := gorm.Open(`postgres`, connection)
+	dbConn.LogMode(true)
 	if err != nil && viper.GetBool("debug") {
 		fmt.Println(err)
 	}

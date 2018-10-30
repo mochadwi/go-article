@@ -60,7 +60,7 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 
 func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
 
-	title := c.Param("title")
+	title := c.QueryParam("title")
 
 	ctx := c.Request().Context()
 	if ctx == nil {
@@ -69,10 +69,26 @@ func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
 
 	art, err := a.AUsecase.GetByTitle(ctx, title)
 
-	if err != nil {
-		return c.JSON(getStatusCode(err), models.BaseResponse{Message: err.Error()})
+	//reqId := uuid.NewV4().String()
+	var response = &models.BaseResponse{
+		RequestID: "",
+		Now:       time.Now().Unix(),
 	}
-	return c.JSON(http.StatusOK, art)
+
+	if err != nil {
+		response.Code = getStatusCode(err)
+		response.Message = err.Error()
+		response.Data = art
+		return c.JSON(response.Code, response)
+	}
+
+	response.Code = http.StatusOK
+	response.Message = models.DATA_AVAILABLE_SUCCESS
+	response.Data = art
+
+	//fmt.Print("Handler: ")
+	//fmt.Println(art)
+	return c.JSON(response.Code, response)
 }
 
 func (a *HttpArticleHandler) GetByID(c echo.Context) error {
@@ -225,6 +241,6 @@ func NewArticleHttpHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
 
 	e.GET("/article", handler.GetAll)
 	e.POST("/article", handler.Create)
-	e.GET("/article/:title", handler.GetByTitle)
+	e.GET("/article", handler.GetByTitle)
 	e.PUT("/article/:id", handler.Update)
 }
