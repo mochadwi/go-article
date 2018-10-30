@@ -60,7 +60,7 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 
 func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
 
-	title := c.QueryParam("title")
+	title := c.Param("title")
 
 	ctx := c.Request().Context()
 	if ctx == nil {
@@ -244,7 +244,6 @@ func getStatusCode(err error) int {
 	logrus.Error(err)
 	switch err {
 	case models.INTERNAL_SERVER_ERROR:
-
 		return http.StatusInternalServerError
 	case models.NOT_FOUND_ERROR:
 		return http.StatusNotFound
@@ -262,6 +261,6 @@ func NewArticleHttpHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
 
 	e.GET("/article", handler.GetAll)
 	e.POST("/article", handler.Create)
-	e.GET("/article", handler.GetByTitle)
+	e.GET("/article/:title", handler.GetByTitle)
 	e.PUT("/article/:id", handler.Update)
 }
