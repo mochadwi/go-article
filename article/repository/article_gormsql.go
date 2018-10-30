@@ -19,11 +19,11 @@ func NewGormsqlArticleRepository(Conn *gorm.DB) article.ArticleRepository {
 	return &gormsqlArticleRepository{Conn}
 }
 
-func (m *gormsqlArticleRepository) GetAll(ctx context.Context, cursor string, num int64) (*[]models.Article, error) {
+func (m *gormsqlArticleRepository) GetAll(ctx context.Context, cursor string, num int64) (*[]*models.Article, error) {
 
 	// TODO: Handle paging and cursor
-	var result *[]models.Article
-	errQuery := models.NewArticleQuerySet(m.Conn).All(result)
+	var result []*models.Article
+	errQuery := models.NewArticleQuerySet(m.Conn).All(&result)
 
 	if errQuery != nil {
 		logrus.Error(errQuery)
@@ -31,7 +31,7 @@ func (m *gormsqlArticleRepository) GetAll(ctx context.Context, cursor string, nu
 	}
 	//defer m.Conn.Close()
 
-	return result, nil
+	return &result, nil
 
 }
 func (m *gormsqlArticleRepository) GetByID(ctx context.Context, id int64) (*models.Article, error) {

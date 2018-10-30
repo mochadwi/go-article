@@ -20,7 +20,7 @@ func NewMysqlArticleRepository(Conn *sql.DB) article.ArticleRepository {
 	return &mysqlArticleRepository{Conn}
 }
 
-func (m *mysqlArticleRepository) fetch(ctx context.Context, query string, args ...interface{}) (*[]models.Article, error) {
+func (m *mysqlArticleRepository) fetch(ctx context.Context, query string, args ...interface{}) (*[]*models.Article, error) {
 
 	rows, err := m.Conn.QueryContext(ctx, query, args...)
 
@@ -29,7 +29,7 @@ func (m *mysqlArticleRepository) fetch(ctx context.Context, query string, args .
 		return nil, err
 	}
 	defer rows.Close()
-	var result *[]models.Article
+	var result *[]*models.Article
 	for rows.Next() {
 		t := new(models.Article)
 		err = rows.Scan(
@@ -46,13 +46,13 @@ func (m *mysqlArticleRepository) fetch(ctx context.Context, query string, args .
 			return nil, err
 		}
 
-		*result = append(*result, *t)
+		*result = append(*result, t)
 	}
 
 	return result, nil
 }
 
-func (m *mysqlArticleRepository) GetAll(ctx context.Context, cursor string, num int64) (*[]models.Article, error) {
+func (m *mysqlArticleRepository) GetAll(ctx context.Context, cursor string, num int64) (*[]*models.Article, error) {
 
 	query := `SELECT id,title,content, author_id, updated_at, created_at
   						FROM article WHERE ID > ? LIMIT ?`
@@ -71,7 +71,7 @@ func (m *mysqlArticleRepository) GetByID(ctx context.Context, id int64) (*models
 
 	a := models.Article{}
 	if len(*list) > 0 {
-		a = (*list)[0]
+		a = *(*list)[0]
 	} else {
 		return nil, models.NOT_FOUND_ERROR
 	}
@@ -90,7 +90,7 @@ func (m *mysqlArticleRepository) GetByTitle(ctx context.Context, title string) (
 
 	a := models.Article{}
 	if len(*list) > 0 {
-		a = (*list)[0]
+		a = *(*list)[0]
 	} else {
 		return nil, models.NOT_FOUND_ERROR
 	}

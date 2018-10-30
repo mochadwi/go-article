@@ -15,9 +15,14 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-type ResponseError struct {
+type BaseResponse struct {
+	
+}
+
+type BaseResponseError struct {
 	Message string `json:"message"`
 }
+
 type HttpArticleHandler struct {
 	AUsecase articleUcase.ArticleUsecase
 }
@@ -31,10 +36,11 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 	if ctx == nil {
 		ctx = context.Background()
 	}
+
 	listAr, nextCursor, err := a.AUsecase.GetAll(ctx, cursor, int64(num))
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
 	}
 	c.Response().Header().Set(`X-Cursor`, nextCursor)
 	return c.JSON(http.StatusOK, listAr)
@@ -52,7 +58,7 @@ func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
 	art, err := a.AUsecase.GetByTitle(ctx, title)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
 	}
 	return c.JSON(http.StatusOK, art)
 }
@@ -70,7 +76,7 @@ func (a *HttpArticleHandler) GetByID(c echo.Context) error {
 	art, err := a.AUsecase.GetByID(ctx, id)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
 	}
 	return c.JSON(http.StatusOK, art)
 }
@@ -104,7 +110,7 @@ func (a *HttpArticleHandler) Create(c echo.Context) error {
 	ar, err := a.AUsecase.Create(ctx, &article)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
 	}
 	return c.JSON(http.StatusCreated, ar)
 }
@@ -139,7 +145,7 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 	ar, err := a.AUsecase.Update(ctx, article)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
 	}
 	return c.JSON(http.StatusCreated, ar)
 }
@@ -156,7 +162,7 @@ func (a *HttpArticleHandler) Delete(c echo.Context) error {
 
 	if err != nil {
 
-		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
 	}
 	return c.NoContent(http.StatusNoContent)
 }
