@@ -47,10 +47,5 @@ go run main.go
 ```
 
 
-> Make Sure you have run the article.sql in your sql tools
-
 ### Tools Used:
 - All libraries listed in [`Gopkg.toml`](https://github.com/mochadwi/go-article/blob/master/Gopkg.toml)
-
-### Change log 
- - 2018-10-28 : [Move to new projects folder](https://github.com/mochadwi/go-article/pull/8)
