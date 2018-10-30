@@ -1,4 +1,4 @@
-package httpecho
+package http_echo
 
 import (
 	"context"
@@ -14,9 +14,6 @@ import (
 
 	"gopkg.in/go-playground/validator.v9"
 	"time"
-	"fmt"
-	"github.com/mochadwi/go-article/article/template/gofiles"
-	"bytes"
 )
 
 type HttpArticleHandler struct {
@@ -58,24 +55,12 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 	response.Data = listAr
 
 	c.Response().Header().Set(`X-Cursor`, nextCursor)
-
-	buffer := new(bytes.Buffer)
-
-	var articles []string
-	for _, article := range *listAr {
-		articles = append(articles, article.Title)
-	}
-
-	gofiles.ArticleList(articles, buffer)
-	return c.HTMLBlob(response.Code, buffer.Bytes())
-
-	//return c.JSON(response.Code, response)
+	return c.JSON(response.Code, response)
 }
 
 func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
 
 	title := c.Param("title")
-	//title2 := c.QueryParam("title")
 
 	ctx := c.Request().Context()
 	if ctx == nil {
@@ -178,12 +163,7 @@ func (a *HttpArticleHandler) Create(c echo.Context) error {
 }
 
 func (a *HttpArticleHandler) Update(c echo.Context) error {
-
-	fmt.Print("[Handler] Update id: ")
-	fmt.Println(c.Param("id"))
-
-	var article models.Article
-	var id, err = strconv.Atoi(c.QueryParam("id"))
+	var idA, err = strconv.Atoi(c.Param("id"))
 
 	var response = &models.BaseResponse{
 		RequestID: "",
@@ -191,18 +171,19 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 	}
 
 	if err != nil {
-		response.Code = http.StatusUnprocessableEntity
+		response.Code = http.StatusNoContent
 		response.Message = string(err.Error())
-		response.Data = id
+		response.Data = idA
 		return c.JSON(response.Code, response)
+	}
+
+	var id = int64(idA)
+	var article = &models.Article{
+		ID: id,
 	}
 
 	err = c.Bind(&article)
 
-	article.ID = int64(id)
-
-	fmt.Print("[Handler] Update: ")
-	fmt.Println(article)
 	if err != nil {
 		response.Code = http.StatusUnprocessableEntity
 		response.Message = string(err.Error())
@@ -210,7 +191,7 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 		return c.JSON(response.Code, response)
 	}
 
-	if ok, err := isRequestValid(&article); !ok {
+	if ok, err := isRequestValid(article); !ok {
 		response.Code = http.StatusBadRequest
 		response.Message = string(err.Error())
 		response.Data = ok
@@ -222,7 +203,7 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 		ctx = context.Background()
 	}
 
-	ar, err := a.AUsecase.Update(ctx, &article)
+	ar, err := a.AUsecase.Update(ctx, article)
 
 	if err != nil {
 		response.Code = getStatusCode(err)
@@ -237,33 +218,33 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 	return c.JSON(response.Code, response)
 }
 
-//func (a *HttpArticleHandler) Delete(c echo.Context) error {
-//var response = &models.BaseResponse{
-//	RequestID: "",
-//	Now:       time.Now().Unix(),
-//}
-//
-//idP, err := strconv.Atoi(c.Param("id"))
-//id := int64(idP)
-//ctx := c.Request().Context()
-//if ctx == nil {
-//	ctx = context.Background()
-//}
-//
-//status, err := a.AUsecase.Delete(ctx, id)
-//
-//if err != nil {
-//	response.Code = getStatusCode(err)
-//	response.Message = string(err.Error())
-//	response.Data = status
-//	return c.JSON(response.Code, response)
-//}
-//
-//response.Code = http.StatusNoContent
-//response.Message = models.DATA_DELETED_SUCCESS
-//response.Data = status
-//return c.JSON(response.Code, response)
-//}
+func (a *HttpArticleHandler) Delete(c echo.Context) error {
+	var response = &models.BaseResponse{
+		RequestID: "",
+		Now:       time.Now().Unix(),
+	}
+
+	idP, err := strconv.Atoi(c.Param("id"))
+	id := int64(idP)
+	ctx := c.Request().Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	status, err := a.AUsecase.Delete(ctx, id)
+
+	if err != nil {
+		response.Code = getStatusCode(err)
+		response.Message = string(err.Error())
+		response.Data = status
+		return c.JSON(response.Code, response)
+	}
+
+	response.Code = http.StatusNoContent
+	response.Message = models.DATA_DELETED_SUCCESS
+	response.Data = status
+	return c.JSON(response.Code, response)
+}
 
 func getStatusCode(err error) int {
 
@@ -284,7 +265,7 @@ func getStatusCode(err error) int {
 	}
 }
 
-func NewArticleHttpEchoHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
+func NewArticleHttpHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
 	handler := &HttpArticleHandler{
 		AUsecase: us,
 	}
@@ -292,6 +273,5 @@ func NewArticleHttpEchoHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
 	e.GET("/article", handler.GetAll)
 	e.POST("/article", handler.Create)
 	e.GET("/article/:title", handler.GetByTitle)
-	e.PUT("/article", handler.Update) // Use Query
-	//e.DELETE("/article/:id", handler.Delete)
+	e.PUT("/article/:id", handler.Update)
 }
