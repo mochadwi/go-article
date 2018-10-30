@@ -7,8 +7,6 @@ import (
 	"github.com/mochadwi/go-article/article"
 	"github.com/mochadwi/go-article/models"
 	"github.com/jinzhu/gorm"
-	"github.com/google/go-cmp/cmp"
-	"fmt"
 	"strconv"
 )
 
@@ -94,36 +92,25 @@ func (m *gormsqlArticleRepository) Delete(ctx context.Context, id int64) (bool, 
 }
 
 func (m *gormsqlArticleRepository) Update(ctx context.Context, ar *models.Article) (*models.Article, error) {
-	// current article by id
-	var ac models.Article
 
-	// Check for existing
-	if err := models.NewArticleQuerySet(m.Conn).IDEq(ar.ID).One(&ac); err != nil {
-		return &ac, err
-	}
+	//fmt.Print("Gorm: ")
+	//fmt.Println(ar)
 
-	// TODO: Refactor this code to use Gorm query set
-	if !cmp.Equal(ac, ar) {
-		// Update
-		ac := &models.Article{
-			Title:     ar.Title,
-			Content:   ar.Content,
-			Thumbnail: ar.Thumbnail,
-		}
+	// Update
+	if err :=
+		models.NewArticleQuerySet(m.Conn).
+			IDEq(ar.ID).
+			GetUpdater().
+			SetContent(ar.Content).
+			SetThumbnail(ar.Thumbnail).
+			SetTitle(ar.Title).
+			Update();
+		err != nil {
+		return nil, err
+	} // end Update
 
-		ac.Update(m.Conn,
-			models.ArticleDBSchema.Title,
-			models.ArticleDBSchema.Content,
-			models.ArticleDBSchema.Thumbnail,
-		)
+	//fmt.Print("Gorm: ")
+	//fmt.Println(ar)
 
-		if errs := m.Conn.GetErrors(); len(errs) > 0 {
-			err := errs[0]
-			return nil, err
-		} // end Update
-	}
-
-	fmt.Print("Gorm: ")
-	fmt.Println(ac)
-	return &ac, nil
+	return ar, nil
 }
