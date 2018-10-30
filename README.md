@@ -49,3 +49,6 @@ go run main.go
 
 ### Tools Used:
 - All libraries listed in [`Gopkg.toml`](https://github.com/mochadwi/go-article/blob/master/Gopkg.toml)
+
+### Postman Docs
+- https://documenter.getpostman.com/view/1033160/RzZ3LNT3
