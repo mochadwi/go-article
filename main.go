@@ -40,22 +40,21 @@ func main() {
 	dbUser := viper.GetString(`database.user`)
 	dbPass := viper.GetString(`database.pass`)
 	dbName := viper.GetString(`database.name`)
-	connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
-	val := url.Values{}
-	val.Add("parseTime", "1")
-	val.Add("loc", "Asia/Jakarta")
-	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
-	dbConn, err := gorm.Open(`mysql`, dsn)
+	connection := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable", dbUser, dbPass, dbHost, dbPort, dbName)
+	//fmt.Println(connection)
+	dbConn, err := gorm.Open(`postgres`, connection)
 	if err != nil && viper.GetBool("debug") {
 		fmt.Println(err)
 	}
+
 	err = dbConn.DB().Ping()
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 
-	defer dbConn.Close()
+	// TODO: Find better approach to close DB connection
+	//defer dbConn.Close()
 
 	// Migrate the schema
 	dbConn.AutoMigrate(&models.Article{})
