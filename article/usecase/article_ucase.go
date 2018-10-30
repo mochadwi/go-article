@@ -20,7 +20,7 @@ func NewArticleUsecase(a article.ArticleRepository, timeout time.Duration) artic
 	}
 }
 
-func (a *articleUsecase) GetAll(c context.Context, cursor string, num int64) ([]*models.Article, string, error) {
+func (a *articleUsecase) GetAll(c context.Context, cursor string, num int64) (*[]models.Article, string, error) {
 	if num == 0 {
 		num = 10
 	}
