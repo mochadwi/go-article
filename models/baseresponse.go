@@ -4,7 +4,7 @@ package models
 type BaseResponse struct {
 	RequestID string      `json:"requestID"`
 	Now       int64       `json:"now"`
-	Code      int64       `json:"code"`
+	Code      int       `json:"code"`
 	Message   string      `json:"message"`
 	Data      interface{} `json:"data"`
 }

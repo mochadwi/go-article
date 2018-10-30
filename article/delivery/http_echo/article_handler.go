@@ -39,7 +39,7 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 	}
 
 	if err != nil {
-		response.Code = int64(getStatusCode(err))
+		response.Code = getStatusCode(err)
 		response.Message = err.Error()
 		response.Data = listAr
 		return c.JSON(getStatusCode(err), response)
@@ -55,7 +55,7 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 	response.Data = listAr
 
 	c.Response().Header().Set(`X-Cursor`, nextCursor)
-	return c.JSON(int(response.Code), response)
+	return c.JSON(response.Code, response)
 }
 
 func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
@@ -107,12 +107,24 @@ func isRequestValid(m *models.Article) (bool, error) {
 func (a *HttpArticleHandler) Create(c echo.Context) error {
 	var article models.Article
 	err := c.Bind(&article)
+
+	var response = &models.BaseResponse{
+		RequestID: "",
+		Now:       time.Now().Unix(),
+	}
+
 	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+		response.Code = http.StatusUnprocessableEntity
+		response.Message = string(err.Error())
+		response.Data = article
+		return c.JSON(response.Code, response)
 	}
 
 	if ok, err := isRequestValid(&article); !ok {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		response.Code = http.StatusBadRequest
+		response.Message = string(err.Error())
+		response.Data = article
+		return c.JSON(response.Code, response)
 	}
 	ctx := c.Request().Context()
 	if ctx == nil {
@@ -122,9 +134,16 @@ func (a *HttpArticleHandler) Create(c echo.Context) error {
 	ar, err := a.AUsecase.Create(ctx, &article)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), models.BaseResponse{Message: err.Error()})
+		response.Code = getStatusCode(err)
+		response.Message = string(err.Error())
+		response.Data = article
+		return c.JSON(response.Code, response)
 	}
-	return c.JSON(http.StatusCreated, ar)
+
+	response.Code = http.StatusCreated
+	response.Message = models.DATA_CREATED_SUCCESS
+	response.Data = ar
+	return c.JSON(response.Code, response)
 }
 
 func (a *HttpArticleHandler) Update(c echo.Context) error {
