@@ -6,8 +6,6 @@ import (
 
 	"github.com/mochadwi/go-article/models"
 	"github.com/mochadwi/go-article/article"
-	"fmt"
-	"github.com/jinzhu/gorm"
 )
 
 type articleUsecase struct {
@@ -45,13 +43,9 @@ func (a *articleUsecase) GetByID(c context.Context, id int64) (*models.Article, 
 
 	res, err := a.articleRepos.GetByID(ctx, id)
 	if err != nil {
-		fmt.Print("[usecase error] GetById: ")
-		fmt.Println(res)
 		return nil, err
 	}
 
-	fmt.Print("[usecase success] GetById: ")
-	fmt.Println(res)
 	return res, nil
 }
 
@@ -59,11 +53,6 @@ func (a *articleUsecase) Update(c context.Context, ar *models.Article) (*models.
 
 	ctx, cancel := context.WithTimeout(c, a.contextTimeout)
 	defer cancel()
-
-	_, err := a.GetByID(ctx, ar.ID)
-	if err != nil {
-		return nil, models.NOT_FOUND_ERROR
-	}
 
 	existedArticle, _ := a.GetByTitle(ctx, ar.Title)
 	if existedArticle != nil {
@@ -80,10 +69,6 @@ func (a *articleUsecase) GetByTitle(c context.Context, title string) (*models.Ar
 	defer cancel()
 	res, err := a.articleRepos.GetByTitle(ctx, title)
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil, models.NOT_FOUND_ERROR
-		}
-
 		return nil, err
 	}
 
@@ -102,6 +87,8 @@ func (a *articleUsecase) Create(c context.Context, m *models.Article) (*models.A
 		return nil, models.CONFLIT_ERROR
 	}
 
+	m.CreatedAt = time.Now()
+	m.UpdatedAt = time.Now()
 	id, err := a.articleRepos.Create(ctx, m)
 	if err != nil {
 		return nil, err
