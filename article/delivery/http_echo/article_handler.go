@@ -1,4 +1,4 @@
-package http
+package http_echo
 
 import (
 	"context"
@@ -13,15 +13,8 @@ import (
 	"github.com/labstack/echo"
 
 	"gopkg.in/go-playground/validator.v9"
+	"time"
 )
-
-type BaseResponse struct {
-	
-}
-
-type BaseResponseError struct {
-	Message string `json:"message"`
-}
 
 type HttpArticleHandler struct {
 	AUsecase articleUcase.ArticleUsecase
@@ -39,11 +32,30 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 
 	listAr, nextCursor, err := a.AUsecase.GetAll(ctx, cursor, int64(num))
 
-	if err != nil {
-		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
+	//reqId := uuid.NewV4().String()
+	var response = &models.BaseResponse{
+		RequestID: "",
+		Now:       time.Now().Unix(),
 	}
+
+	if err != nil {
+		response.Code = int64(getStatusCode(err))
+		response.Message = err.Error()
+		response.Data = listAr
+		return c.JSON(getStatusCode(err), response)
+	}
+
+	if len(*listAr) > 0 {
+		response.Message = models.DATA_AVAILABLE_SUCCESS
+	} else {
+		response.Message = models.DATA_EMPTY_SUCCESS
+	}
+
+	response.Code = http.StatusOK
+	response.Data = listAr
+
 	c.Response().Header().Set(`X-Cursor`, nextCursor)
-	return c.JSON(http.StatusOK, listAr)
+	return c.JSON(int(response.Code), response)
 }
 
 func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
@@ -58,7 +70,7 @@ func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
 	art, err := a.AUsecase.GetByTitle(ctx, title)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
+		return c.JSON(getStatusCode(err), models.BaseResponse{Message: err.Error()})
 	}
 	return c.JSON(http.StatusOK, art)
 }
@@ -76,7 +88,7 @@ func (a *HttpArticleHandler) GetByID(c echo.Context) error {
 	art, err := a.AUsecase.GetByID(ctx, id)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
+		return c.JSON(getStatusCode(err), models.BaseResponse{Message: err.Error()})
 	}
 	return c.JSON(http.StatusOK, art)
 }
@@ -110,7 +122,7 @@ func (a *HttpArticleHandler) Create(c echo.Context) error {
 	ar, err := a.AUsecase.Create(ctx, &article)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
+		return c.JSON(getStatusCode(err), models.BaseResponse{Message: err.Error()})
 	}
 	return c.JSON(http.StatusCreated, ar)
 }
@@ -145,7 +157,7 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 	ar, err := a.AUsecase.Update(ctx, article)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
+		return c.JSON(getStatusCode(err), models.BaseResponse{Message: err.Error()})
 	}
 	return c.JSON(http.StatusCreated, ar)
 }
@@ -162,7 +174,7 @@ func (a *HttpArticleHandler) Delete(c echo.Context) error {
 
 	if err != nil {
 
-		return c.JSON(getStatusCode(err), BaseResponseError{Message: err.Error()})
+		return c.JSON(getStatusCode(err), models.BaseResponse{Message: err.Error()})
 	}
 	return c.NoContent(http.StatusNoContent)
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/labstack/echo"
-	httpDeliver "github.com/mochadwi/go-article/article/delivery/http"
+	httpDeliver "github.com/mochadwi/go-article/article/delivery/http_echo"
 	articleRepo "github.com/mochadwi/go-article/article/repository"
 	articleUcase "github.com/mochadwi/go-article/article/usecase"
 	"github.com/mochadwi/go-article/middleware"
