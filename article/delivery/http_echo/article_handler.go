@@ -165,8 +165,16 @@ func (a *HttpArticleHandler) Create(c echo.Context) error {
 func (a *HttpArticleHandler) Update(c echo.Context) error {
 	var idA, err = strconv.Atoi(c.Param("id"))
 
+	var response = &models.BaseResponse{
+		RequestID: "",
+		Now:       time.Now().Unix(),
+	}
+
 	if err != nil {
-		return c.JSON(http.StatusNoContent, err.Error())
+		response.Code = http.StatusNoContent
+		response.Message = string(err.Error())
+		response.Data = idA
+		return c.JSON(response.Code, response)
 	}
 
 	var id = int64(idA)
@@ -177,11 +185,17 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 	err = c.Bind(&article)
 
 	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+		response.Code = http.StatusUnprocessableEntity
+		response.Message = string(err.Error())
+		response.Data = article
+		return c.JSON(response.Code, response)
 	}
 
 	if ok, err := isRequestValid(article); !ok {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		response.Code = http.StatusBadRequest
+		response.Message = string(err.Error())
+		response.Data = ok
+		return c.JSON(response.Code, response)
 	}
 
 	ctx := c.Request().Context()
@@ -192,9 +206,16 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 	ar, err := a.AUsecase.Update(ctx, article)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), models.BaseResponse{Message: err.Error()})
+		response.Code = getStatusCode(err)
+		response.Message = string(err.Error())
+		response.Data = article
+		return c.JSON(response.Code, response)
 	}
-	return c.JSON(http.StatusCreated, ar)
+
+	response.Code = http.StatusCreated
+	response.Message = models.DATA_UPDATED_SUCCESS
+	response.Data = ar
+	return c.JSON(response.Code, response)
 }
 
 func (a *HttpArticleHandler) Delete(c echo.Context) error {

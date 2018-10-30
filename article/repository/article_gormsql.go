@@ -8,6 +8,7 @@ import (
 	"github.com/mochadwi/go-article/models"
 	"github.com/jinzhu/gorm"
 	"github.com/google/go-cmp/cmp"
+	"fmt"
 )
 
 type gormsqlArticleRepository struct {
@@ -114,22 +115,23 @@ func (m *gormsqlArticleRepository) Delete(ctx context.Context, id int64) (bool, 
 
 func (m *gormsqlArticleRepository) Update(ctx context.Context, ar *models.Article) (*models.Article, error) {
 	// current article by id
-	var ac *models.Article
+	var ac models.Article
 
 	// Check for existing
-	if err := models.NewArticleQuerySet(m.Conn).IDEq(ar.ID).One(ac); err != nil {
-		return ac, err
+	if err := models.NewArticleQuerySet(m.Conn).IDEq(ar.ID).One(&ac); err != nil {
+		return &ac, err
 	}
 
+	// TODO: Refactor this code to use Gorm query set
 	if !cmp.Equal(ac, ar) {
 		// Update
-		tempAData := &models.Article{
+		ac := &models.Article{
 			Title:     ar.Title,
 			Content:   ar.Content,
 			Thumbnail: ar.Thumbnail,
 		}
 
-		tempAData.Update(m.Conn,
+		ac.Update(m.Conn,
 			models.ArticleDBSchema.Title,
 			models.ArticleDBSchema.Content,
 			models.ArticleDBSchema.Thumbnail,
@@ -141,5 +143,7 @@ func (m *gormsqlArticleRepository) Update(ctx context.Context, ar *models.Articl
 		} // end Update
 	}
 
-	return nil, nil
+	fmt.Print("Gorm: ")
+	fmt.Println(ac)
+	return &ac, nil
 }
