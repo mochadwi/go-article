@@ -74,25 +74,14 @@ func (m *gormsqlArticleRepository) GetByTitle(ctx context.Context, title string)
 }
 
 func (m *gormsqlArticleRepository) Create(ctx context.Context, a *models.Article) (int64, error) {
-
-	var ac models.Article
-	models.NewArticleQuerySet(m.Conn).TitleEq(a.Title).One(&ac)
-
-	if ac.Title != a.Title {
-		// Create
-		a.Create(m.Conn)
-
-		if errQuery := m.Conn.GetErrors(); len(errQuery) > 0 {
-			err := errQuery[0]
-			return 0, err
+	// Create
+	if errQuery := a.Create(m.Conn); errQuery != nil {
+		logrus.Debug("Created At: ", a.CreatedAt)
+		return 0, errQuery
 		} // end Create
 
-		return 1, nil
+	return a.ID, nil
 	}
-
-	logrus.Debug("Created At: ", a.CreatedAt)
-	return 0, models.CONFLIT_ERROR
-}
 
 func (m *gormsqlArticleRepository) Delete(ctx context.Context, id int64) (bool, error) {
 	var ac models.Article
