@@ -8,6 +8,7 @@ import (
 	"github.com/mochadwi/go-article/models"
 	"github.com/jinzhu/gorm"
 	"strconv"
+	"fmt"
 )
 
 type gormsqlArticleRepository struct {
@@ -37,18 +38,17 @@ func (m *gormsqlArticleRepository) GetAll(ctx context.Context, cursor string, nu
 }
 func (m *gormsqlArticleRepository) GetByID(ctx context.Context, id int64) (*models.Article, error) {
 
-	var ac *models.Article
-	if errQuery := models.NewArticleQuerySet(m.Conn).IDEq(id).One(ac); errQuery != nil {
+	var ac models.Article
+	if errQuery := models.NewArticleQuerySet(m.Conn).IDEq(id).One(&ac); errQuery != nil {
+		fmt.Print("[gorm error] GetById: ")
+		fmt.Println(errQuery)
 		logrus.Error(errQuery)
 		return nil, errQuery
 	}
 
-	// TODO: Check this if it, redundant?
-	if ac == nil {
-		return nil, models.NOT_FOUND_ERROR
-	}
-
-	return ac, nil
+	fmt.Print("[gorm success] GetById: ")
+	fmt.Println(ac)
+	return &ac, nil
 }
 
 func (m *gormsqlArticleRepository) GetByTitle(ctx context.Context, title string) (*models.Article, error) {
