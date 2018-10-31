@@ -62,6 +62,7 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
 
 	title := c.Param("title")
+	//title2 := c.QueryParam("title")
 
 	ctx := c.Request().Context()
 	if ctx == nil {
@@ -166,7 +167,7 @@ func (a *HttpArticleHandler) Create(c echo.Context) error {
 func (a *HttpArticleHandler) Update(c echo.Context) error {
 
 	fmt.Print("[Handler] Update id: ")
-	fmt.Println(c.QueryParam("id"))
+	fmt.Println(c.Param("id"))
 
 	var article models.Article
 	var id, err = strconv.Atoi(c.QueryParam("id"))
@@ -278,6 +279,6 @@ func NewArticleHttpHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
 	e.GET("/article", handler.GetAll)
 	e.POST("/article", handler.Create)
 	e.GET("/article/:title", handler.GetByTitle)
-	e.PUT("/article", handler.Update)
+	e.PUT("/article", handler.Update) // Use Query
 	//e.DELETE("/article/:id", handler.Delete)
 }

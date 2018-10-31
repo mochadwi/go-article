@@ -40,13 +40,13 @@ func (m *gormsqlArticleRepository) GetByID(ctx context.Context, id int64) (*mode
 
 	var ac models.Article
 	if errQuery := models.NewArticleQuerySet(m.Conn).IDEq(id).One(&ac); errQuery != nil {
-		fmt.Print("[gorm error] GetById: ")
+		fmt.Print("[repo error] GetById: ")
 		fmt.Println(errQuery)
 		logrus.Error(errQuery)
 		return nil, errQuery
 	}
 
-	fmt.Print("[gorm success] GetById: ")
+	fmt.Print("[repo success] GetById: ")
 	fmt.Println(ac)
 	return &ac, nil
 }
@@ -56,17 +56,23 @@ func (m *gormsqlArticleRepository) GetByTitle(ctx context.Context, title string)
 	//m.Conn.Begin()
 	var ac models.Article
 	if errQuery := models.NewArticleQuerySet(m.Conn).TitleEq(title).One(&ac); errQuery != nil {
-		if &ac == nil {
+		fmt.Print("[repo error]: ")
+		fmt.Println(ac)
+		if gorm.IsRecordNotFoundError(errQuery) {
 			return nil, models.NOT_FOUND_ERROR
 		}
 
 		logrus.Error(errQuery)
+		fmt.Print("[repo error]: ")
+		fmt.Println(ac)
 		return nil, errQuery
 	}
 
 	//fmt.Print("Repo: ")
 	//fmt.Println(ac)
 	//defer m.Conn.Close()
+	fmt.Print("[repo error]: ")
+	fmt.Println(ac)
 	return &ac, nil
 }
 
