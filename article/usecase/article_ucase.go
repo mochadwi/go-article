@@ -59,14 +59,14 @@ func (a *articleUsecase) Update(c context.Context, ar *models.Article) (*models.
 	ctx, cancel := context.WithTimeout(c, a.contextTimeout)
 	defer cancel()
 
-	existedArticle, _ := a.GetByTitle(ctx, ar.Title)
-	if existedArticle != nil {
-		return nil, models.CONFLIT_ERROR
-	}
-
 	_, err := a.GetByID(ctx, ar.ID)
 	if err != nil {
 		return nil, models.NOT_FOUND_ERROR
+	}
+
+	existedArticle, _ := a.GetByTitle(ctx, ar.Title)
+	if existedArticle != nil {
+		return nil, models.CONFLIT_ERROR
 	}
 
 	ar.UpdatedAt = time.Now()
