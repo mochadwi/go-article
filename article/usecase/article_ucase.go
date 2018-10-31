@@ -87,8 +87,6 @@ func (a *articleUsecase) Create(c context.Context, m *models.Article) (*models.A
 		return nil, models.CONFLIT_ERROR
 	}
 
-	m.CreatedAt = time.Now()
-	m.UpdatedAt = time.Now()
 	id, err := a.articleRepos.Create(ctx, m)
 	if err != nil {
 		return nil, err

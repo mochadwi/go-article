@@ -18,7 +18,7 @@ type Article struct {
 	Thumbnail string    `json:"thumbnail" validate:"required"`
 	UpdatedAt time.Time `json:"updated_at"`
 	CreatedAt time.Time `json:"created_at"`
-	DeletedAt time.Time `json:"deleted_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 // ===== BEGIN of all query sets
