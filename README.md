@@ -11,7 +11,9 @@ This is an article management with replica of Clean Architecture in (Golang) pro
 - All libraries listed in [`Gopkg.toml`](https://github.com/mochadwi/go-article/blob/master/Gopkg.toml)
 
 ### How To Run This Project
-- Clone this repository `go get github.com/mochadwi/go-article`
+- Run `go get github.com/codegangsta/gin`
+- Verify it `gin -h`
+- Then, clone this repository `go get github.com/mochadwi/go-article`
 - `cd $GOPATH/src/mochadwi/go-article`
 - Run `dep ensure`
 - Run `make`
