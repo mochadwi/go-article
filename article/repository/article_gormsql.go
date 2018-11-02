@@ -55,21 +55,20 @@ func (m *gormsqlArticleRepository) GetByTitle(ctx context.Context, title string)
 
 	//m.Conn.Begin()
 	var ac models.Article
-	if errQuery := models.NewArticleQuerySet(m.Conn).TitleEq(title).One(&ac); errQuery != nil {
-		fmt.Print("[repo error]: ")
-		fmt.Println(ac)
-		if gorm.IsRecordNotFoundError(errQuery) {
-			return nil, models.NOT_FOUND_ERROR
-		}
+	if errQuery := models.
+		NewArticleQuerySet(m.Conn).
+		TitleEq(title).
+		One(&ac);
+		errQuery != nil {
+		//fmt.Print("[repo error]: ")
+		//fmt.Println(ac)
 
 		logrus.Error(errQuery)
-		fmt.Print("[repo error]: ")
-		fmt.Println(ac)
+		//fmt.Print("[repo error]: ")
+		//fmt.Println(ac)
 		return nil, errQuery
 	}
 
-	//fmt.Print("Repo: ")
-	//fmt.Println(ac)
 	//defer m.Conn.Close()
 	fmt.Print("[repo error]: ")
 	fmt.Println(ac)

@@ -1,20 +1,21 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
-	"net/url"
 	"os"
 	"time"
 
-	httpDeliver "github.com/mochadwi/go-article/article/delivery/http"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/labstack/echo"
 	articleRepo "github.com/mochadwi/go-article/article/repository"
 	articleUcase "github.com/mochadwi/go-article/article/usecase"
 	"github.com/mochadwi/go-article/middleware"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/labstack/echo"
+	"github.com/mochadwi/go-article/models"
 	"github.com/spf13/viper"
+	httpDeliverIris "github.com/mochadwi/go-article/article/delivery/http_iris"
 )
 
 func init() {
@@ -38,30 +39,36 @@ func main() {
 	dbUser := viper.GetString(`database.user`)
 	dbPass := viper.GetString(`database.pass`)
 	dbName := viper.GetString(`database.name`)
-	connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
-	val := url.Values{}
-	val.Add("parseTime", "1")
-	val.Add("loc", "Asia/Jakarta")
-	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
-	dbConn, err := sql.Open(`mysql`, dsn)
+	connection := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable", dbUser, dbPass, dbHost, dbPort, dbName)
+	//fmt.Println(connection)
+	dbConn, err := gorm.Open(`postgres`, connection)
+	dbConn.LogMode(true)
 	if err != nil && viper.GetBool("debug") {
 		fmt.Println(err)
 	}
-	err = dbConn.Ping()
+
+	err = dbConn.DB().Ping()
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 
-	defer dbConn.Close()
+	// TODO: Find better approach to close DB connection
+	//defer dbConn.Close()
+
+	// Migrate the schema
+	dbConn.AutoMigrate(&models.Article{})
+
 	e := echo.New()
 	middL := middleware.InitMiddleware()
 	e.Use(middL.CORS)
-	ar := articleRepo.NewMysqlArticleRepository(dbConn)
+	//ar := articleRepo.NewMysqlArticleRepository(dbConn)
+	ar := articleRepo.NewGormsqlArticleRepository(dbConn)
 
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 	au := articleUcase.NewArticleUsecase(ar, timeoutContext)
-	httpDeliver.NewArticleHttpHandler(e, au)
+	//httpDeliverEcho.NewArticleHttpEchoHandler(e, au)
+	httpDeliverIris.NewArticleHttpIrisHandler(e, au)
 
 	e.Start(viper.GetString("server.address"))
 }
