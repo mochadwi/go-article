@@ -7,6 +7,7 @@ import (
 	"github.com/mochadwi/go-article/models"
 	"github.com/mochadwi/go-article/article"
 	"fmt"
+	"github.com/jinzhu/gorm"
 )
 
 type articleUsecase struct {
@@ -79,6 +80,10 @@ func (a *articleUsecase) GetByTitle(c context.Context, title string) (*models.Ar
 	defer cancel()
 	res, err := a.articleRepos.GetByTitle(ctx, title)
 	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, models.NOT_FOUND_ERROR
+		}
+
 		return nil, err
 	}
 

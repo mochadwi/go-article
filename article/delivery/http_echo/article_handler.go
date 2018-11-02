@@ -271,7 +271,7 @@ func getStatusCode(err error) int {
 	}
 }
 
-func NewArticleHttpHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
+func NewArticleHttpEchoHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
 	handler := &HttpArticleHandler{
 		AUsecase: us,
 	}
