@@ -1,4 +1,4 @@
-package http_echo
+package httpecho
 
 import (
 	"context"
@@ -15,6 +15,8 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 	"time"
 	"fmt"
+	"github.com/mochadwi/go-article/article/template/gofiles"
+	"bytes"
 )
 
 type HttpArticleHandler struct {
@@ -56,7 +58,18 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 	response.Data = listAr
 
 	c.Response().Header().Set(`X-Cursor`, nextCursor)
-	return c.JSON(response.Code, response)
+
+	buffer := new(bytes.Buffer)
+
+	var articles []string
+	for _, article := range *listAr {
+		articles = append(articles, article.Title)
+	}
+
+	gofiles.ArticleList(articles, buffer)
+	return c.HTMLBlob(response.Code, buffer.Bytes())
+
+	//return c.JSON(response.Code, response)
 }
 
 func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
