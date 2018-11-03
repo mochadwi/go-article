@@ -10,12 +10,12 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/labstack/echo"
-	httpDeliver "github.com/mochadwi/go-article/article/delivery/http_echo"
 	articleRepo "github.com/mochadwi/go-article/article/repository"
 	articleUcase "github.com/mochadwi/go-article/article/usecase"
 	"github.com/mochadwi/go-article/middleware"
 	"github.com/mochadwi/go-article/models"
 	"github.com/spf13/viper"
+	httpDeliverIris "github.com/mochadwi/go-article/article/delivery/httpiris"
 )
 
 func init() {
@@ -67,7 +67,8 @@ func main() {
 
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 	au := articleUcase.NewArticleUsecase(ar, timeoutContext)
-	httpDeliver.NewArticleHttpHandler(e, au)
+	//httpDeliverEcho.NewArticleHttpEchoHandler(e, au)
+	httpDeliverIris.NewArticleHttpIrisHandler(e, au)
 
 	e.Start(viper.GetString("server.address"))
 }
