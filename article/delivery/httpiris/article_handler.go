@@ -1,4 +1,4 @@
-package http_echo
+package httpiris
 
 import (
 	"context"
@@ -15,12 +15,15 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 	"time"
 	"fmt"
+	"github.com/mochadwi/go-article/article/template/gofiles"
+	"bytes"
 )
 
 type HttpArticleHandler struct {
 	AUsecase articleUcase.ArticleUsecase
 }
 
+// TODO: Implement iris API
 func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 
 	numS := c.QueryParam("num")
@@ -56,7 +59,18 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 	response.Data = listAr
 
 	c.Response().Header().Set(`X-Cursor`, nextCursor)
-	return c.JSON(response.Code, response)
+
+	buffer := new(bytes.Buffer)
+
+	var articles []string
+	for _, article := range *listAr {
+		articles = append(articles, article.Title)
+	}
+
+	gofiles.ArticleList(articles, buffer)
+	return c.HTMLBlob(response.Code, buffer.Bytes())
+
+	//return c.JSON(response.Code, response)
 }
 
 func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
@@ -271,7 +285,7 @@ func getStatusCode(err error) int {
 	}
 }
 
-func NewArticleHttpEchoHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
+func NewArticleHttpIrisHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
 	handler := &HttpArticleHandler{
 		AUsecase: us,
 	}

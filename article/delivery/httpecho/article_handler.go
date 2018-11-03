@@ -1,4 +1,4 @@
-package http_iris
+package httpecho
 
 import (
 	"context"
@@ -23,7 +23,6 @@ type HttpArticleHandler struct {
 	AUsecase articleUcase.ArticleUsecase
 }
 
-// TODO: Implement iris API
 func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 
 	numS := c.QueryParam("num")
@@ -285,7 +284,7 @@ func getStatusCode(err error) int {
 	}
 }
 
-func NewArticleHttpIrisHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
+func NewArticleHttpEchoHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
 	handler := &HttpArticleHandler{
 		AUsecase: us,
 	}

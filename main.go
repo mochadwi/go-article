@@ -15,7 +15,7 @@ import (
 	"github.com/mochadwi/go-article/middleware"
 	"github.com/mochadwi/go-article/models"
 	"github.com/spf13/viper"
-	httpDeliverIris "github.com/mochadwi/go-article/article/delivery/http_iris"
+	httpDeliverIris "github.com/mochadwi/go-article/article/delivery/httpiris"
 )
 
 func init() {
