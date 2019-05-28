@@ -2,4 +2,4 @@
 
 dep ensure
 make
-gin -a 3333 article_clean # auto-reload
+gin -a 3000 article_clean # auto-reload
