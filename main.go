@@ -2,19 +2,19 @@ package main
 
 import (
 	"fmt"
+	"github.com/jinzhu/gorm"
+	"github.com/mochadwi/go-article/models"
 	"log"
 	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/labstack/echo"
 	httpDeliverEcho "github.com/mochadwi/go-article/article/delivery/http_echo"
 	articleRepo "github.com/mochadwi/go-article/article/repository"
 	articleUcase "github.com/mochadwi/go-article/article/usecase"
 	"github.com/mochadwi/go-article/middleware"
-	"github.com/mochadwi/go-article/models"
 	"github.com/spf13/viper"
 )
 
@@ -53,8 +53,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO: Find better approach to close DB connection
-	//defer dbConn.Close()
+	defer func() {
+		err := dbConn.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// Migrate the schema
 	dbConn.AutoMigrate(&models.Article{})
@@ -62,13 +66,12 @@ func main() {
 	e := echo.New()
 	middL := middleware.InitMiddleware()
 	e.Use(middL.CORS)
-	//ar := articleRepo.NewMysqlArticleRepository(dbConn)
-	ar := articleRepo.NewGormsqlArticleRepository(dbConn)
+	ar := articleRepo.NewMysqlArticleRepository(dbConn)
+	//ar := articleRepo.NewGormsqlArticleRepository(dbConn)
 
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 	au := articleUcase.NewArticleUsecase(ar, timeoutContext)
 	httpDeliverEcho.NewArticleHttpEchoHandler(e, au)
-	//httpDeliverIris.NewArticleHttpIrisHandler(e, au)
 
 	e.Start(viper.GetString("server.address"))
 }
