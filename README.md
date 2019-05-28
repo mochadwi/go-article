@@ -15,7 +15,7 @@ This is an article management with replica of Clean Architecture in (Golang) pro
 - `cd $GOPATH/src/mochadwi/go-article`
 - Run `dep ensure`
 - Run `make`
-- Run `gin -a 3333 article_clean` or `./gin-bin`
+- Run `gin -a 3000 article_clean` or `./gin-bin`
 - Run postman on `localhost:3000 # default gin auto-reload port`
 - Happy coding
 

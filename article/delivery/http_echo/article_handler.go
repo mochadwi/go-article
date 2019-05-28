@@ -9,12 +9,12 @@ import (
 
 	"github.com/mochadwi/go-article/models"
 
-	articleUcase "github.com/mochadwi/go-article/article"
 	"github.com/labstack/echo"
+	articleUcase "github.com/mochadwi/go-article/article"
 
+	"fmt"
 	"gopkg.in/go-playground/validator.v9"
 	"time"
-	"fmt"
 )
 
 type HttpArticleHandler struct {
@@ -88,8 +88,8 @@ func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
 	response.Message = models.DATA_AVAILABLE_SUCCESS
 	response.Data = art
 
-	//fmt.Print("Handler: ")
-	//fmt.Println(art)
+	fmt.Print("Handler: ")
+	fmt.Println(art)
 	return c.JSON(response.Code, response)
 }
 
