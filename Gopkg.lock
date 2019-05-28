@@ -37,19 +37,6 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:2e3c336fc7fde5c984d2841455a658a6d626450b1754a854b3b32e7a8f49a07a"
-  name = "github.com/google/go-cmp"
-  packages = [
-    "cmp",
-    "cmp/internal/diff",
-    "cmp/internal/function",
-    "cmp/internal/value",
-  ]
-  pruneopts = "UT"
-  revision = "3af367b6b30c263d47e8895973edcca9a49cf029"
-  version = "v0.2.0"
-
-[[projects]]
   digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
   name = "github.com/hashicorp/hcl"
   packages = [
@@ -165,6 +152,14 @@
   pruneopts = "UT"
   revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
   version = "v1.2.0"
+
+[[projects]]
+  digest = "1:0a7d7f8da501d50c0917e789e8b2c6c60af85ff5091946327e6cf6beddb471f0"
+  name = "github.com/shiyanhui/hero"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "13388ec75acb968f8754631bad15faa062544251"
+  version = "v0.0.1"
 
 [[projects]]
   digest = "1:3f53e9e4dfbb664cd62940c9c4b65a2171c66acd0b7621a1a6b8e78513525a52"
@@ -292,10 +287,10 @@
   analyzer-version = 1
   input-imports = [
     "github.com/go-sql-driver/mysql",
-    "github.com/google/go-cmp/cmp",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/postgres",
     "github.com/labstack/echo",
+    "github.com/shiyanhui/hero",
     "github.com/sirupsen/logrus",
     "github.com/spf13/viper",
     "gopkg.in/go-playground/validator.v9",

@@ -10,12 +10,12 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/labstack/echo"
+	httpDeliverIris "github.com/mochadwi/go-article/article/delivery/httpiris"
 	articleRepo "github.com/mochadwi/go-article/article/repository"
 	articleUcase "github.com/mochadwi/go-article/article/usecase"
 	"github.com/mochadwi/go-article/middleware"
 	"github.com/mochadwi/go-article/models"
 	"github.com/spf13/viper"
-	httpDeliverIris "github.com/mochadwi/go-article/article/delivery/httpiris"
 )
 
 func init() {
