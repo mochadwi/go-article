@@ -1,10 +1,10 @@
 package models
 
 import (
-	"time"
-	"github.com/jinzhu/gorm"
-	"fmt"
 	"errors"
+	"fmt"
+	"github.com/jinzhu/gorm"
+	"time"
 )
 
 //go:generate goqueryset -in article.go
@@ -12,13 +12,13 @@ import (
 // Article struct represent article model. Next line (gen:qs) is needed to autogenerate ArticleQuerySet.
 // gen:qs
 type Article struct {
-	ID        int64     `json:"id"`
-	Title     string    `json:"title" validate:"required"`
-	Content   string    `json:"content" validate:"required"`
-	Thumbnail string    `json:"thumbnail" validate:"required"`
-	UpdatedAt time.Time `json:"updated_at"`
-	CreatedAt time.Time `json:"created_at"`
-	DeletedAt *time.Time `json:"deleted_at"`
+	ID        int64      `json:"id"`
+	Title     string     `json:"title" validate:"required"`
+	Content   string     `json:"content" validate:"required"`
+	Thumbnail string     `json:"thumbnail" validate:"required"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	CreatedAt time.Time  `json:"created_at"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
 
 // ===== BEGIN of all query sets
