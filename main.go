@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/jackwhelpton/fasthttp-routing"
 	"github.com/jinzhu/gorm"
 	"github.com/mochadwi/go-article/models"
 	"log"
@@ -11,10 +12,9 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/labstack/echo"
-	httpDeliverEcho "github.com/mochadwi/go-article/article/delivery/http_echo"
+	articleDeliverFastHttp "github.com/mochadwi/go-article/article/delivery/http_fasthttp"
 	articleRepo "github.com/mochadwi/go-article/article/repository"
 	articleUcase "github.com/mochadwi/go-article/article/usecase"
-	"github.com/mochadwi/go-article/middleware"
 	"github.com/spf13/viper"
 )
 
@@ -64,14 +64,16 @@ func main() {
 	dbConn.AutoMigrate(&models.Article{})
 
 	e := echo.New()
-	middL := middleware.InitMiddleware()
-	e.Use(middL.CORS)
-	ar := articleRepo.NewMysqlArticleRepository(dbConn)
-	//ar := articleRepo.NewGormsqlArticleRepository(dbConn)
-
+	f := routing.New()
+	//middL := middleware.InitMiddleware()
+	//f.Use(&middL.CORSFAST)
+	//e.Use(middL.CORS)
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
+
+	ar := articleRepo.NewGormsqlArticleRepository(dbConn)
 	au := articleUcase.NewArticleUsecase(ar, timeoutContext)
-	httpDeliverEcho.NewArticleHttpEchoHandler(e, au)
+
+	articleDeliverFastHttp.NewArticleHttpFastHttpHandler(f, au)
 
 	e.Start(viper.GetString("server.address"))
 }

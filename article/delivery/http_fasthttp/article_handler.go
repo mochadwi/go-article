@@ -1,7 +1,7 @@
-package http_iris
+package http_echo
 
 import (
-	"context"
+	"github.com/jackwhelpton/fasthttp-routing"
 	"net/http"
 	"strconv"
 
@@ -9,29 +9,24 @@ import (
 
 	"github.com/mochadwi/go-article/models"
 
+	"fmt"
 	articleUcase "github.com/mochadwi/go-article/article"
-	"github.com/labstack/echo"
-
 	"gopkg.in/go-playground/validator.v9"
 	"time"
-	"fmt"
-	"github.com/mochadwi/go-article/article/template/gofiles"
-	"bytes"
 )
 
 type HttpArticleHandler struct {
 	AUsecase articleUcase.ArticleUsecase
 }
 
-// TODO: Implement iris API
-func (a *HttpArticleHandler) GetAll(c echo.Context) error {
+func (a *HttpArticleHandler) GetAll(c *routing.Context) error {
 
-	numS := c.QueryParam("num")
+	numS := c.Query("num")
 	num, _ := strconv.Atoi(numS)
-	cursor := c.QueryParam("cursor")
-	ctx := c.Request().Context()
+	cursor := c.Query("cursor")
+	ctx := c.RequestCtx
 	if ctx == nil {
-		ctx = context.Background()
+		ctx = c.RequestCtx
 	}
 
 	listAr, nextCursor, err := a.AUsecase.GetAll(ctx, cursor, int64(num))
@@ -46,7 +41,9 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 		response.Code = getStatusCode(err)
 		response.Message = err.Error()
 		response.Data = listAr
-		return c.JSON(getStatusCode(err), response)
+
+		c.Response.SetStatusCode(response.Code)
+		return c.Write(response)
 	}
 
 	if len(*listAr) > 0 {
@@ -58,29 +55,19 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 	response.Code = http.StatusOK
 	response.Data = listAr
 
-	c.Response().Header().Set(`X-Cursor`, nextCursor)
-
-	buffer := new(bytes.Buffer)
-
-	var articles []string
-	for _, article := range *listAr {
-		articles = append(articles, article.Title)
-	}
-
-	gofiles.ArticleList(articles, buffer)
-	return c.HTMLBlob(response.Code, buffer.Bytes())
-
-	//return c.JSON(response.Code, response)
+	c.Response.Header.Set(`X-Cursor`, nextCursor)
+	c.Response.SetStatusCode(response.Code)
+	return c.Write(response)
 }
 
-func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
+func (a *HttpArticleHandler) GetByTitle(c *routing.Context) error {
 
 	title := c.Param("title")
 	//title2 := c.QueryParam("title")
 
-	ctx := c.Request().Context()
+	ctx := c.RequestCtx
 	if ctx == nil {
-		ctx = context.Background()
+		ctx = c.RequestCtx
 	}
 
 	art, err := a.AUsecase.GetByTitle(ctx, title)
@@ -95,34 +82,40 @@ func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
 		response.Code = getStatusCode(err)
 		response.Message = err.Error()
 		response.Data = art
-		return c.JSON(response.Code, response)
+
+		c.Response.SetStatusCode(response.Code)
+		return c.Write(response)
 	}
 
 	response.Code = http.StatusOK
 	response.Message = models.DATA_AVAILABLE_SUCCESS
 	response.Data = art
 
-	//fmt.Print("Handler: ")
-	//fmt.Println(art)
-	return c.JSON(response.Code, response)
+	fmt.Print("Handler: ")
+	fmt.Println(art)
+
+	c.Response.SetStatusCode(response.Code)
+	return c.Write(response)
 }
 
-func (a *HttpArticleHandler) GetByID(c echo.Context) error {
+func (a *HttpArticleHandler) GetByID(c *routing.Context) error {
 
 	idP, err := strconv.Atoi(c.Param("id"))
 	id := int64(idP)
 
-	ctx := c.Request().Context()
+	ctx := c.RequestCtx
 	if ctx == nil {
-		ctx = context.Background()
+		ctx = c.RequestCtx
 	}
 
 	art, err := a.AUsecase.GetByID(ctx, id)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), models.BaseResponse{Message: err.Error()})
+		c.Response.SetStatusCode(getStatusCode(err))
+		return c.Write(models.BaseResponse{Message: err.Error()})
 	}
-	return c.JSON(http.StatusOK, art)
+
+	return c.Write(art)
 }
 
 func isRequestValid(m *models.Article) (bool, error) {
@@ -136,9 +129,9 @@ func isRequestValid(m *models.Article) (bool, error) {
 	return true, nil
 }
 
-func (a *HttpArticleHandler) Create(c echo.Context) error {
+func (a *HttpArticleHandler) Create(c *routing.Context) error {
 	var article models.Article
-	err := c.Bind(&article)
+	err := c.Read(&article)
 
 	var response = &models.BaseResponse{
 		RequestID: "",
@@ -149,18 +142,22 @@ func (a *HttpArticleHandler) Create(c echo.Context) error {
 		response.Code = http.StatusUnprocessableEntity
 		response.Message = string(err.Error())
 		response.Data = article
-		return c.JSON(response.Code, response)
+
+		c.Response.SetStatusCode(response.Code)
+		return c.Write(response) // todo write custom header instead
 	}
 
 	if ok, err := isRequestValid(&article); !ok {
 		response.Code = http.StatusBadRequest
 		response.Message = string(err.Error())
 		response.Data = article
-		return c.JSON(response.Code, response)
+
+		c.Response.SetStatusCode(response.Code)
+		return c.Write(response)
 	}
-	ctx := c.Request().Context()
+	ctx := c.RequestCtx
 	if ctx == nil {
-		ctx = context.Background()
+		ctx = c.RequestCtx
 	}
 
 	ar, err := a.AUsecase.Create(ctx, &article)
@@ -169,22 +166,26 @@ func (a *HttpArticleHandler) Create(c echo.Context) error {
 		response.Code = getStatusCode(err)
 		response.Message = string(err.Error())
 		response.Data = article
-		return c.JSON(response.Code, response)
+
+		c.Response.SetStatusCode(response.Code)
+		return c.Write(response)
 	}
 
 	response.Code = http.StatusCreated
 	response.Message = models.DATA_CREATED_SUCCESS
 	response.Data = ar
-	return c.JSON(response.Code, response)
+
+	c.Response.SetStatusCode(response.Code)
+	return c.Write(response)
 }
 
-func (a *HttpArticleHandler) Update(c echo.Context) error {
+func (a *HttpArticleHandler) Update(c *routing.Context) error {
 
 	fmt.Print("[Handler] Update id: ")
 	fmt.Println(c.Param("id"))
 
 	var article models.Article
-	var id, err = strconv.Atoi(c.QueryParam("id"))
+	var id, err = strconv.Atoi(c.Param("id"))
 
 	var response = &models.BaseResponse{
 		RequestID: "",
@@ -195,10 +196,12 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 		response.Code = http.StatusUnprocessableEntity
 		response.Message = string(err.Error())
 		response.Data = id
-		return c.JSON(response.Code, response)
+
+		c.Response.SetStatusCode(response.Code)
+		return c.Write(response)
 	}
 
-	err = c.Bind(&article)
+	err = c.Read(&article)
 
 	article.ID = int64(id)
 
@@ -208,19 +211,23 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 		response.Code = http.StatusUnprocessableEntity
 		response.Message = string(err.Error())
 		response.Data = article
-		return c.JSON(response.Code, response)
+
+		c.Response.SetStatusCode(response.Code)
+		return c.Write(response)
 	}
 
 	if ok, err := isRequestValid(&article); !ok {
 		response.Code = http.StatusBadRequest
 		response.Message = string(err.Error())
 		response.Data = ok
-		return c.JSON(response.Code, response)
+
+		c.Response.SetStatusCode(response.Code)
+		return c.Write(response)
 	}
 
-	ctx := c.Request().Context()
+	ctx := c.RequestCtx
 	if ctx == nil {
-		ctx = context.Background()
+		ctx = c.RequestCtx
 	}
 
 	ar, err := a.AUsecase.Update(ctx, &article)
@@ -229,42 +236,18 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 		response.Code = getStatusCode(err)
 		response.Message = string(err.Error())
 		response.Data = article
-		return c.JSON(response.Code, response)
+
+		c.Response.SetStatusCode(response.Code)
+		return c.Write(response)
 	}
 
 	response.Code = http.StatusOK
 	response.Message = models.DATA_UPDATED_SUCCESS
 	response.Data = ar
-	return c.JSON(response.Code, response)
-}
 
-//func (a *HttpArticleHandler) Delete(c echo.Context) error {
-//var response = &models.BaseResponse{
-//	RequestID: "",
-//	Now:       time.Now().Unix(),
-//}
-//
-//idP, err := strconv.Atoi(c.Param("id"))
-//id := int64(idP)
-//ctx := c.Request().Context()
-//if ctx == nil {
-//	ctx = context.Background()
-//}
-//
-//status, err := a.AUsecase.Delete(ctx, id)
-//
-//if err != nil {
-//	response.Code = getStatusCode(err)
-//	response.Message = string(err.Error())
-//	response.Data = status
-//	return c.JSON(response.Code, response)
-//}
-//
-//response.Code = http.StatusNoContent
-//response.Message = models.DATA_DELETED_SUCCESS
-//response.Data = status
-//return c.JSON(response.Code, response)
-//}
+	c.Response.SetStatusCode(response.Code)
+	return c.Write(response)
+}
 
 func getStatusCode(err error) int {
 
@@ -285,14 +268,14 @@ func getStatusCode(err error) int {
 	}
 }
 
-func NewArticleHttpIrisHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
+func NewArticleHttpFastHttpHandler(e *routing.Router, us articleUcase.ArticleUsecase) {
 	handler := &HttpArticleHandler{
 		AUsecase: us,
 	}
 
-	e.GET("/article", handler.GetAll)
-	e.POST("/article", handler.Create)
-	e.GET("/article/:title", handler.GetByTitle)
-	e.PUT("/article", handler.Update) // Use Query
+	e.Get("/article", handler.GetAll)
+	e.Post("/article", handler.Create)
+	e.Get("/article/:title", handler.GetByTitle)
+	e.Put("/article", handler.Update) // Use Query
 	//e.DELETE("/article/:id", handler.Delete)
 }

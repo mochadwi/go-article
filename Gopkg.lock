@@ -56,6 +56,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:8c8d0aadc14e0ed8dd4686754987e24a5e32d4937e39f3161f8a811daffc94d2"
+  name = "github.com/jackwhelpton/fasthttp-routing"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ddac5b974542ffeef4e63bf1f46530683054e42d"
+  version = "v2.0.0"
+
+[[projects]]
   digest = "1:6895fbe5a10c5aebd1965cac6f6905dcdb21bee01e08912d3ba6a805c2485f6a"
   name = "github.com/jinzhu/gorm"
   packages = [
@@ -73,6 +81,26 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "04140366298a54a039076d798123ffa108fff46c"
+
+[[projects]]
+  digest = "1:aaa8e0e7e35d92e21daed3f241832cee73d15ca1cd3302ba3843159a959a7eac"
+  name = "github.com/klauspost/compress"
+  packages = [
+    "flate",
+    "gzip",
+    "zlib",
+  ]
+  pruneopts = "UT"
+  revision = "b4b6d9e7f099f14b3a4a08f0664986cd4c85ebd6"
+  version = "v1.5.0"
+
+[[projects]]
+  digest = "1:923c4d7194b42e054b2eb8a6c62824ac55e23ececc1c7e48d4da69c971c55954"
+  name = "github.com/klauspost/cpuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "05a8198c0f5a27739aec358908d7e12c64ce6eb7"
+  version = "v1.2.1"
 
 [[projects]]
   digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
@@ -214,6 +242,18 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:37e29bc5e561aff89d0e7411e93192f38a621dc733d0709329a73c12a444ce3f"
+  name = "github.com/valyala/fasthttp"
+  packages = [
+    ".",
+    "fasthttputil",
+    "stackless",
+  ]
+  pruneopts = "UT"
+  revision = "d3715c361c6d8d227117caa9a7e6872498bf7283"
+
+[[projects]]
+  branch = "master"
   digest = "1:268b8bce0064e8c057d7b913605459f9a26dcab864c0886a56d196540fbf003f"
   name = "github.com/valyala/fasttemplate"
   packages = ["."]
@@ -279,11 +319,13 @@
   analyzer-version = 1
   input-imports = [
     "github.com/go-sql-driver/mysql",
+    "github.com/jackwhelpton/fasthttp-routing",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/postgres",
     "github.com/labstack/echo",
     "github.com/sirupsen/logrus",
     "github.com/spf13/viper",
+    "github.com/valyala/fasthttp",
     "gopkg.in/go-playground/validator.v9",
   ]
   solver-name = "gps-cdcl"
