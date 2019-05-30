@@ -10,12 +10,15 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/labstack/echo"
-	articleRepo "github.com/mochadwi/go-article/article/repository"
-	articleUcase "github.com/mochadwi/go-article/article/usecase"
+	articleDeliverHttpEcho "github.com/mochadwi/go-article/features/article/delivery/httpecho"
+	articleRepo "github.com/mochadwi/go-article/features/article/repository"
+	articleUcase "github.com/mochadwi/go-article/features/article/usecase"
+	ratingDeliverHttpEcho "github.com/mochadwi/go-article/features/rating/delivery/httpecho"
+	ratingRepo "github.com/mochadwi/go-article/features/rating/repository"
+	ratingUcase "github.com/mochadwi/go-article/features/rating/usecase"
 	"github.com/mochadwi/go-article/middleware"
 	"github.com/mochadwi/go-article/models"
 	"github.com/spf13/viper"
-	httpDeliverIris "github.com/mochadwi/go-article/article/delivery/httpiris"
 )
 
 func init() {
@@ -39,10 +42,12 @@ func main() {
 	dbUser := viper.GetString(`database.user`)
 	dbPass := viper.GetString(`database.pass`)
 	dbName := viper.GetString(`database.name`)
+
 	connection := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable", dbUser, dbPass, dbHost, dbPort, dbName)
-	//fmt.Println(connection)
+
 	dbConn, err := gorm.Open(`postgres`, connection)
 	dbConn.LogMode(true)
+
 	if err != nil && viper.GetBool("debug") {
 		fmt.Println(err)
 	}
@@ -53,22 +58,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO: Find better approach to close DB connection
-	//defer dbConn.Close()
+	defer func() {
+		err = dbConn.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// Migrate the schema
 	dbConn.AutoMigrate(&models.Article{})
+	dbConn.AutoMigrate(&models.Rating{})
 
-	e := echo.New()
 	middL := middleware.InitMiddleware()
-	e.Use(middL.CORS)
-	//ar := articleRepo.NewMysqlArticleRepository(dbConn)
-	ar := articleRepo.NewGormsqlArticleRepository(dbConn)
 
+	echoStart := echo.New()
+	echoStart.Use(middL.CORS)
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
-	au := articleUcase.NewArticleUsecase(ar, timeoutContext)
-	//httpDeliverEcho.NewArticleHttpEchoHandler(e, au)
-	httpDeliverIris.NewArticleHttpIrisHandler(e, au)
 
-	e.Start(viper.GetString("server.address"))
+	articleR := articleRepo.NewGormsqlArticleRepository(dbConn)
+	articleU := articleUcase.NewArticleUsecase(articleR, timeoutContext)
+	articleDeliverHttpEcho.NewArticleHttpEchoHandler(echoStart, articleU)
+
+	ratingR := ratingRepo.NewGormsqlRatingRepository(dbConn)
+	ratingU := ratingUcase.NewRatingUsecase(ratingR, timeoutContext)
+	ratingDeliverHttpEcho.NewRatingHttpEchoHandler(echoStart, ratingU)
+
+	echoStart.Start(viper.GetString("server.address"))
 }

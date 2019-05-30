@@ -11,14 +11,12 @@ This is an article management with replica of Clean Architecture in (Golang) pro
 - All libraries listed in [`Gopkg.toml`](https://github.com/mochadwi/go-article/blob/master/Gopkg.toml)
 
 ### How To Run This Project
-- Run `go get github.com/codegangsta/gin`
-- Verify it `gin -h`
-- Then, clone this repository `go get github.com/mochadwi/go-article`
+- Clone this repository `go get github.com/mochadwi/go-article`
 - `cd $GOPATH/src/mochadwi/go-article`
 - Run `dep ensure`
 - Run `make`
-- Run `gin -a 3333 article_clean` or `./gin-bin`
-- Run postman on `localhost:3000 # default gin auto-reload port`
+- Run `gin -a 9090 article_clean` or `./gin-bin`
+- Run postman on `localhost:9090 # default gin auto-reload port`
 - Happy coding
 
 ### Install using script
@@ -29,7 +27,6 @@ This is an article management with replica of Clean Architecture in (Golang) pro
 - https://documenter.getpostman.com/view/1033160/RzZ3LNT3
 
 
-### Todo
-[ * ] Docker
-
-[ * ] Implement Iris
+### Tech Stack
+- Database (PostgreSQL - Gorm)
+- Http (Echo web framework)

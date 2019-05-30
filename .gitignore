@@ -5,6 +5,10 @@ _*
 *.test
 .DS_Store
 config.json
+logfile
+main
+gin-bin
+*.sql
 
 # Created by https://www.gitignore.io/api/go,intellij+all
 
