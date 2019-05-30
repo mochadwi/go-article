@@ -163,12 +163,12 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:0a7d7f8da501d50c0917e789e8b2c6c60af85ff5091946327e6cf6beddb471f0"
-  name = "github.com/shiyanhui/hero"
+  branch = "master"
+  digest = "1:a3b8912deeef29007fab9a13a9f21b9e9b59c621a2ed61e2fe7b37320a71fbd5"
+  name = "github.com/satori/go.uuid"
   packages = ["."]
   pruneopts = "UT"
-  revision = "13388ec75acb968f8754631bad15faa062544251"
-  version = "v0.0.1"
+  revision = "b2ce2384e17bbe0c6d34077efa39dbab3e09123b"
 
 [[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
@@ -321,7 +321,7 @@
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/postgres",
     "github.com/labstack/echo",
-    "github.com/shiyanhui/hero",
+    "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",
     "github.com/spf13/viper",
     "gopkg.in/go-playground/validator.v9",
