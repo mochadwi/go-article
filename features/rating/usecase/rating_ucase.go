@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/jinzhu/gorm"
 	"time"
 
 	"fmt"
@@ -30,6 +31,11 @@ func (a *ratingUsecase) GetByID(c context.Context, id int64) (*models.Rating, er
 	if err != nil {
 		fmt.Print("[usecase error] GetById: ")
 		fmt.Println(res)
+
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, models.NOT_FOUND_ERROR
+		}
+
 		return nil, err
 	}
 

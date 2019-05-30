@@ -1,29 +1,23 @@
-package httpiris
+package httpecho
 
 import (
 	"context"
 	"net/http"
 	"strconv"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/mochadwi/go-article/models"
 
-	articleUcase "github.com/mochadwi/go-article/article"
-	"github.com/labstack/echo"
-
-	"gopkg.in/go-playground/validator.v9"
-	"time"
 	"fmt"
-	"github.com/mochadwi/go-article/article/template/gofiles"
-	"bytes"
+	"github.com/labstack/echo"
+	baseHandler "github.com/mochadwi/go-article/base"
+	articleUcase "github.com/mochadwi/go-article/features/article"
+	"time"
 )
 
 type HttpArticleHandler struct {
 	AUsecase articleUcase.ArticleUsecase
 }
 
-// TODO: Implement iris API
 func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 
 	numS := c.QueryParam("num")
@@ -43,10 +37,10 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 	}
 
 	if err != nil {
-		response.Code = getStatusCode(err)
+		response.Code = baseHandler.GetStatusCode(err)
 		response.Message = err.Error()
 		response.Data = listAr
-		return c.JSON(getStatusCode(err), response)
+		return c.JSON(baseHandler.GetStatusCode(err), response)
 	}
 
 	if len(*listAr) > 0 {
@@ -60,17 +54,7 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 
 	c.Response().Header().Set(`X-Cursor`, nextCursor)
 
-	buffer := new(bytes.Buffer)
-
-	var articles []string
-	for _, article := range *listAr {
-		articles = append(articles, article.Title)
-	}
-
-	gofiles.ArticleList(articles, buffer)
-	return c.HTMLBlob(response.Code, buffer.Bytes())
-
-	//return c.JSON(response.Code, response)
+	return c.JSON(response.Code, response)
 }
 
 func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
@@ -92,7 +76,7 @@ func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {
 	}
 
 	if err != nil {
-		response.Code = getStatusCode(err)
+		response.Code = baseHandler.GetStatusCode(err)
 		response.Message = err.Error()
 		response.Data = art
 		return c.JSON(response.Code, response)
@@ -120,20 +104,9 @@ func (a *HttpArticleHandler) GetByID(c echo.Context) error {
 	art, err := a.AUsecase.GetByID(ctx, id)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), models.BaseResponse{Message: err.Error()})
+		return c.JSON(baseHandler.GetStatusCode(err), models.BaseResponse{Message: err.Error()})
 	}
 	return c.JSON(http.StatusOK, art)
-}
-
-func isRequestValid(m *models.Article) (bool, error) {
-
-	validate := validator.New()
-
-	err := validate.Struct(m)
-	if err != nil {
-		return false, err
-	}
-	return true, nil
 }
 
 func (a *HttpArticleHandler) Create(c echo.Context) error {
@@ -152,7 +125,7 @@ func (a *HttpArticleHandler) Create(c echo.Context) error {
 		return c.JSON(response.Code, response)
 	}
 
-	if ok, err := isRequestValid(&article); !ok {
+	if ok, err := baseHandler.IsRequestValid(&article); !ok {
 		response.Code = http.StatusBadRequest
 		response.Message = string(err.Error())
 		response.Data = article
@@ -166,7 +139,7 @@ func (a *HttpArticleHandler) Create(c echo.Context) error {
 	ar, err := a.AUsecase.Create(ctx, &article)
 
 	if err != nil {
-		response.Code = getStatusCode(err)
+		response.Code = baseHandler.GetStatusCode(err)
 		response.Message = string(err.Error())
 		response.Data = article
 		return c.JSON(response.Code, response)
@@ -211,7 +184,7 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 		return c.JSON(response.Code, response)
 	}
 
-	if ok, err := isRequestValid(&article); !ok {
+	if ok, err := baseHandler.IsRequestValid(&article); !ok {
 		response.Code = http.StatusBadRequest
 		response.Message = string(err.Error())
 		response.Data = ok
@@ -226,7 +199,7 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 	ar, err := a.AUsecase.Update(ctx, &article)
 
 	if err != nil {
-		response.Code = getStatusCode(err)
+		response.Code = baseHandler.GetStatusCode(err)
 		response.Message = string(err.Error())
 		response.Data = article
 		return c.JSON(response.Code, response)
@@ -254,7 +227,7 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 //status, err := a.AUsecase.Delete(ctx, id)
 //
 //if err != nil {
-//	response.Code = getStatusCode(err)
+//	response.Code = baseHandler.GetStatusCode(err)
 //	response.Message = string(err.Error())
 //	response.Data = status
 //	return c.JSON(response.Code, response)
@@ -266,26 +239,7 @@ func (a *HttpArticleHandler) Update(c echo.Context) error {
 //return c.JSON(response.Code, response)
 //}
 
-func getStatusCode(err error) int {
-
-	if err == nil {
-		return http.StatusOK
-	}
-
-	logrus.Error(err)
-	switch err {
-	case models.INTERNAL_SERVER_ERROR:
-		return http.StatusInternalServerError
-	case models.NOT_FOUND_ERROR:
-		return http.StatusNotFound
-	case models.CONFLIT_ERROR:
-		return http.StatusConflict
-	default:
-		return http.StatusInternalServerError
-	}
-}
-
-func NewArticleHttpIrisHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
+func NewArticleHttpEchoHandler(e *echo.Echo, us articleUcase.ArticleUsecase) {
 	handler := &HttpArticleHandler{
 		AUsecase: us,
 	}

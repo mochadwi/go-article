@@ -3,10 +3,14 @@ dist: xenial
 
 language: go
 
+env:
+- CODECOV_TOKEN="08297470-5791-4f74-ac1e-d468bf2ab0c1"
+
 # You don't need to test on very old versions of the Go compiler. It's the user's
 # responsibility to keep their compiler up to date.
 go:
 - 1.12.x
+- tip
 
 # Only clone the most recent commit.
 git:
@@ -20,6 +24,10 @@ install: true
 notifications:
   email: false
 
+go_import_path: "github.com/mochadwi/go-article"
+gobuild_args: -v -race
+
+
 # Anything in before_script that returns a nonzero exit code will flunk the
 # build and immediately stop. It's sorta like having set -e enabled in bash.
 # Make sure golangci-lint is vendored.
@@ -31,4 +39,7 @@ before_script:
 # .golangci.yml file at the top level of your repo.
 script:
 - golangci-lint run       # run a bunch of code checkers/linters in parallel
-- go test -v -race ./...  # Run all the tests with the race detector enabled
+- go test ${gobuild_args} ./...  # Run all the tests with the race detector enabled
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)

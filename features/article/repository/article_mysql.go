@@ -7,7 +7,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/mochadwi/go-article/article"
+	"github.com/mochadwi/go-article/features/article"
 	"github.com/mochadwi/go-article/models"
 )
 
@@ -20,7 +20,7 @@ func NewMysqlArticleRepository(Conn *sql.DB) article.ArticleRepository {
 	return &mysqlArticleRepository{Conn}
 }
 
-func (m *mysqlArticleRepository) fetch(ctx context.Context, query string, args ...interface{}) ([]*models.Article, error) {
+func (m *mysqlArticleRepository) fetch(ctx context.Context, query string, args ...interface{}) (*[]*models.Article, error) {
 
 	rows, err := m.Conn.QueryContext(ctx, query, args...)
 
@@ -29,15 +29,14 @@ func (m *mysqlArticleRepository) fetch(ctx context.Context, query string, args .
 		return nil, err
 	}
 	defer rows.Close()
-	result := make([]*models.Article, 0)
+	var result *[]*models.Article
 	for rows.Next() {
 		t := new(models.Article)
-		authorID := int64(0)
 		err = rows.Scan(
 			&t.ID,
 			&t.Title,
 			&t.Content,
-			&authorID,
+			&t.Thumbnail,
 			&t.UpdatedAt,
 			&t.CreatedAt,
 		)
@@ -47,13 +46,13 @@ func (m *mysqlArticleRepository) fetch(ctx context.Context, query string, args .
 			return nil, err
 		}
 
-		result = append(result, t)
+		*result = append(*result, t)
 	}
 
 	return result, nil
 }
 
-func (m *mysqlArticleRepository) GetAll(ctx context.Context, cursor string, num int64) ([]*models.Article, error) {
+func (m *mysqlArticleRepository) GetAll(ctx context.Context, cursor string, num int64) (*[]*models.Article, error) {
 
 	query := `SELECT id,title,content, author_id, updated_at, created_at
   						FROM article WHERE ID > ? LIMIT ?`
@@ -70,14 +69,14 @@ func (m *mysqlArticleRepository) GetByID(ctx context.Context, id int64) (*models
 		return nil, err
 	}
 
-	a := &models.Article{}
-	if len(list) > 0 {
-		a = list[0]
+	a := models.Article{}
+	if len(*list) > 0 {
+		a = *(*list)[0]
 	} else {
 		return nil, models.NOT_FOUND_ERROR
 	}
 
-	return a, nil
+	return &a, nil
 }
 
 func (m *mysqlArticleRepository) GetByTitle(ctx context.Context, title string) (*models.Article, error) {
@@ -89,13 +88,13 @@ func (m *mysqlArticleRepository) GetByTitle(ctx context.Context, title string) (
 		return nil, err
 	}
 
-	a := &models.Article{}
-	if len(list) > 0 {
-		a = list[0]
+	a := models.Article{}
+	if len(*list) > 0 {
+		a = *(*list)[0]
 	} else {
 		return nil, models.NOT_FOUND_ERROR
 	}
-	return a, nil
+	return &a, nil
 }
 
 func (m *mysqlArticleRepository) Create(ctx context.Context, a *models.Article) (int64, error) {
