@@ -19,8 +19,8 @@ type HttpRatingHandler struct {
 
 func (a *HttpRatingHandler) GetByID(c echo.Context) error {
 
-	idParam, err := strconv.Atoi(c.Param("lessonId"))
-	lessonId := int64(idParam)
+	lessonIdParam, err := strconv.Atoi(c.Param("lessonId"))
+	lessonId := int64(lessonIdParam)
 
 	var response = &models.BaseResponse{
 		RequestID: baseHandler.GetUUID(string(lessonId)),
