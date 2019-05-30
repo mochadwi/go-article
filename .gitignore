@@ -7,7 +7,7 @@ _*
 config.json
 logfile
 main
-gin-bin
+*gin-bin*
 *.sql
 
 # Created by https://www.gitignore.io/api/go,intellij+all
