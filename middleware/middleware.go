@@ -1,6 +1,8 @@
 package middleware
 
-import "github.com/labstack/echo"
+import (
+	"github.com/labstack/echo"
+)
 
 const (
 	ACCESS_TOKEN_KEY = "Access-Token"
@@ -20,6 +22,13 @@ func (m *goMiddleware) CORS(next echo.HandlerFunc) echo.HandlerFunc {
 		return next(c)
 	}
 }
+
+//func (m *goMiddleware) CORSFAST(next *routing.Handler) routing.Handler {
+//	return func(c *routing.Context) error {
+//		c.Response.Header.Set("Access-Control-Allow-Origin", "*")
+//		return next(c)
+//	}
+//}
 
 func InitMiddleware() *goMiddleware {
 	return &goMiddleware{}

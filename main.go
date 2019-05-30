@@ -5,13 +5,13 @@ import (
 	"github.com/jackwhelpton/fasthttp-routing"
 	"github.com/jinzhu/gorm"
 	"github.com/mochadwi/go-article/models"
+	"github.com/valyala/fasthttp"
 	"log"
 	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/labstack/echo"
 	articleDeliverFastHttp "github.com/mochadwi/go-article/article/delivery/http_fasthttp"
 	articleRepo "github.com/mochadwi/go-article/article/repository"
 	articleUcase "github.com/mochadwi/go-article/article/usecase"
@@ -63,10 +63,10 @@ func main() {
 	// Migrate the schema
 	dbConn.AutoMigrate(&models.Article{})
 
-	e := echo.New()
-	f := routing.New()
+	//e := echo.New()
 	//middL := middleware.InitMiddleware()
-	//f.Use(&middL.CORSFAST)
+	f := routing.New()
+	//f.Use(middL.CORSFAST)
 	//e.Use(middL.CORS)
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
@@ -75,5 +75,5 @@ func main() {
 
 	articleDeliverFastHttp.NewArticleHttpFastHttpHandler(f, au)
 
-	e.Start(viper.GetString("server.address"))
+	fasthttp.ListenAndServe(viper.GetString("server.address"), f.HandleRequest)
 }
