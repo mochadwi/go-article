@@ -325,7 +325,6 @@
     "github.com/labstack/echo",
     "github.com/sirupsen/logrus",
     "github.com/spf13/viper",
-    "github.com/valyala/fasthttp",
     "gopkg.in/go-playground/validator.v9",
   ]
   solver-name = "gps-cdcl"
