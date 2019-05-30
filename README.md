@@ -27,7 +27,6 @@ This is an article management with replica of Clean Architecture in (Golang) pro
 - https://documenter.getpostman.com/view/1033160/RzZ3LNT3
 
 
-### Todo
-[ * ] Docker
-
-[ * ] Implement Iris
+### Tech Stack
+- Database (PostgreSQL - Gorm)
+- Http (Echo web framework)
