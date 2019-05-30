@@ -13,6 +13,9 @@ import (
 	articleDeliverHttpEcho "github.com/mochadwi/go-article/features/article/delivery/httpecho"
 	articleRepo "github.com/mochadwi/go-article/features/article/repository"
 	articleUcase "github.com/mochadwi/go-article/features/article/usecase"
+	ratingDeliverHttpEcho "github.com/mochadwi/go-article/features/rating/delivery/httpecho"
+	ratingRepo "github.com/mochadwi/go-article/features/rating/repository"
+	ratingUcase "github.com/mochadwi/go-article/features/rating/usecase"
 	"github.com/mochadwi/go-article/middleware"
 	"github.com/mochadwi/go-article/models"
 	"github.com/spf13/viper"
@@ -68,13 +71,17 @@ func main() {
 
 	middL := middleware.InitMiddleware()
 
-	e := echo.New()
-	e.Use(middL.CORS)
+	echoStart := echo.New()
+	echoStart.Use(middL.CORS)
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
-	ar := articleRepo.NewGormsqlArticleRepository(dbConn)
-	au := articleUcase.NewArticleUsecase(ar, timeoutContext)
-	articleDeliverHttpEcho.NewArticleHttpEchoHandler(e, au)
+	articleR := articleRepo.NewGormsqlArticleRepository(dbConn)
+	articleU := articleUcase.NewArticleUsecase(articleR, timeoutContext)
+	articleDeliverHttpEcho.NewArticleHttpEchoHandler(echoStart, articleU)
 
-	e.Start(viper.GetString("server.address"))
+	ratingR := ratingRepo.NewGormsqlRatingRepository(dbConn)
+	ratingU := ratingUcase.NewRatingUsecase(ratingR, timeoutContext)
+	ratingDeliverHttpEcho.NewRatingHttpEchoHandler(echoStart, ratingU)
+
+	echoStart.Start(viper.GetString("server.address"))
 }

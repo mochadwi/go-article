@@ -75,12 +75,6 @@ func (a *HttpRatingHandler) Create(c echo.Context) error {
 		return c.JSON(response.Code, response)
 	}
 
-	if rating.RatingNumber < 1 || rating.RatingNumber > 5 {
-		response.Code = http.StatusBadRequest
-		response.Message = "Rating number should be between 1 and 5"
-		return c.JSON(response.Code, response)
-	}
-
 	ctx := c.Request().Context()
 	if ctx == nil {
 		ctx = context.Background()
