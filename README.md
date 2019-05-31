@@ -1,5 +1,5 @@
 # go-article
-[![Build Status](https://travis-ci.com/mochadwi/go-article.svg?branch=develop)](https://travis-ci.com/mochadwi/go-article)
+[![Build Status](https://travis-ci.com/mochadwi/go-article.svg?branch=develop)](https://travis-ci.com/mochadwi/go-article)[![codecov](https://codecov.io/gh/mochadwi/go-article/branch/master/graph/badge.svg)](https://codecov.io/gh/mochadwi/go-article)
 
 ### Description
 This is an article management with replica of Clean Architecture in (Golang) projects.
