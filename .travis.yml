@@ -10,7 +10,6 @@ env:
 # responsibility to keep their compiler up to date.
 go:
 - 1.12.x
-- tip
 
 # Only clone the most recent commit.
 git:
@@ -40,8 +39,10 @@ before_script:
 # failing test, we want to see both. Configure golangci-lint with a
 # .golangci.yml file at the top level of your repo.
 script:
+- ls -al
 - dep ensure
 - go test ${gobuild_args} ./...  # Run all the tests with the race detector enabled
+- ls -al
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
