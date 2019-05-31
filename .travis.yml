@@ -10,6 +10,7 @@ env:
 # responsibility to keep their compiler up to date.
 go:
 - 1.12.x
+- tip
 
 # Only clone the most recent commit.
 git:
@@ -40,7 +41,6 @@ before_script:
 # .golangci.yml file at the top level of your repo.
 script:
 - dep ensure
-- cd features # go to features pkg
 - go test ${gobuild_args} ./...  # Run all the tests with the race detector enabled
 
 after_success:
