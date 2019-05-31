@@ -28,7 +28,7 @@ func (a *HttpRatingHandler) GetByID(c echo.Context) error {
 
 	if err != nil {
 		response.Code = http.StatusUnprocessableEntity
-		response.Message = string(err.Error())
+		response.Message = "The Lesson ID must be a number"
 
 		return c.JSON(response.Code, response)
 	}

@@ -1,7 +1,6 @@
 package httpecho
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/bxcodec/faker"
 	"github.com/labstack/echo"
@@ -19,9 +18,13 @@ import (
 )
 
 func TestHttpRatingHandler_GetByID_InvalidLessonID(t *testing.T) {
+	mockUCase := new(mocks.RatingUsecase)
+	num := 1
+
 	e := echo.New()
 
-	req, _ := http.NewRequest(echo.GET, "/rating/a", strings.NewReader(""))
+	req, err := http.NewRequest(echo.GET, "/rating/"+strconv.Itoa(num), strings.NewReader(""))
+	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
 
@@ -31,10 +34,10 @@ func TestHttpRatingHandler_GetByID_InvalidLessonID(t *testing.T) {
 	c.SetParamValues("a")
 
 	handler := HttpRatingHandler{
-		AUsecase: new(mocks.RatingUsecase),
+		AUsecase: mockUCase,
 	}
-
-	handler.GetByID(c)
+	err = handler.GetByID(c)
+	assert.NoError(t, err)
 	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 }
 
@@ -56,19 +59,17 @@ func TestHttpRatingHandler_GetByID_Succeed(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	ctx := c.Request().Context()
-	assert.Equal(t, ctx, context.Background())
-
 	c.SetPath("rating/:lessonId")
 	c.SetParamNames("lessonId")
 	c.SetParamValues(strconv.Itoa(num))
+
 	handler := HttpRatingHandler{
 		AUsecase: mockUCase,
 	}
 	err = handler.GetByID(c)
 	require.NoError(t, err)
-
 	assert.Equal(t, http.StatusOK, rec.Code)
+
 	mockUCase.AssertExpectations(t)
 }
 
@@ -82,11 +83,6 @@ func TestHttpRatingHandler_Create_BadRequest(t *testing.T) {
 	}
 
 	mockUCase := new(mocks.RatingUsecase)
-
-	// todo error?
-	//mockUCase.On("Create",
-	//	mock.Anything,
-	//	mock.AnythingOfType("*models.Rating")).Return(nil).Once()
 
 	j, err := json.Marshal(tempMockRating)
 	assert.NoError(t, err)
@@ -106,6 +102,4 @@ func TestHttpRatingHandler_Create_BadRequest(t *testing.T) {
 	err = handler.Create(c)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
-
-	mockUCase.AssertExpectations(t)
 }
