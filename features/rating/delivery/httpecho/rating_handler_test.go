@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/bxcodec/faker"
 	"github.com/labstack/echo"
+	"github.com/mochadwi/go-article/features/rating"
 	"github.com/mochadwi/go-article/features/rating/mocks"
 	"github.com/mochadwi/go-article/models"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +18,33 @@ import (
 	"time"
 )
 
-func TestHttpRatingHandler_GetByID_InvalidLessonID(t *testing.T) {
+func Test_NewRatingHttpHandler(t *testing.T) {
+	type args struct {
+		echo          *echo.Echo
+		ratingUsecase rating.RatingUsecase
+	}
+
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "Test NewFlightHttpHandler() with all params valid.",
+			args: args{
+				echo:          echo.New(),
+				ratingUsecase: new(mocks.RatingUsecase),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			NewRatingHttpEchoHandler(tt.args.echo, tt.args.ratingUsecase)
+		})
+	}
+}
+
+func Test_HttpRatingHandler_GetByID_InvalidLessonID(t *testing.T) {
 	mockUCase := new(mocks.RatingUsecase)
 	num := 1
 
@@ -41,7 +68,7 @@ func TestHttpRatingHandler_GetByID_InvalidLessonID(t *testing.T) {
 	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 }
 
-func TestHttpRatingHandler_GetByID_Succeed(t *testing.T) {
+func Test_HttpRatingHandler_GetByID_Succeed(t *testing.T) {
 	var mockRating models.Rating
 	err := faker.FakeData(&mockRating)
 	assert.NoError(t, err)
@@ -73,7 +100,7 @@ func TestHttpRatingHandler_GetByID_Succeed(t *testing.T) {
 	mockUCase.AssertExpectations(t)
 }
 
-func TestHttpRatingHandler_Create_BadRequest(t *testing.T) {
+func Test_HttpRatingHandler_Create_BadRequest(t *testing.T) {
 	tempMockRating := models.Rating{
 		ID:           0,
 		LessonID:     1,
