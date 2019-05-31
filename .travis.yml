@@ -10,7 +10,6 @@ env:
 # responsibility to keep their compiler up to date.
 go:
 - 1.12.x
-- tip
 
 # Only clone the most recent commit.
 git:
@@ -32,6 +31,7 @@ gobuild_args: -covermode=atomic -coverprofile=coverage.txt -v -race
 # build and immediately stop. It's sorta like having set -e enabled in bash.
 # Make sure golangci-lint is vendored.
 before_script:
+- sudo apt-get install go-dep
 - go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 
 
@@ -39,7 +39,7 @@ before_script:
 # failing test, we want to see both. Configure golangci-lint with a
 # .golangci.yml file at the top level of your repo.
 script:
-- golangci-lint run       # run a bunch of code checkers/linters in parallel
+- dep ensure
 - cd features # go to features pkg
 - go test ${gobuild_args} ./...  # Run all the tests with the race detector enabled
 
