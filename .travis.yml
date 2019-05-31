@@ -3,6 +3,10 @@ dist: xenial
 
 language: go
 
+cache:
+  directories:
+  - $HOME/.cache/go-build
+
 env:
 - CODECOV_TOKEN="08297470-5791-4f74-ac1e-d468bf2ab0c1"
 
@@ -24,7 +28,6 @@ notifications:
   email: false
 
 go_import_path: "github.com/mochadwi/go-article"
-gobuild_args: -covermode=atomic -coverprofile=coverage.txt -v -race
 
 
 # Anything in before_script that returns a nonzero exit code will flunk the
@@ -41,7 +44,7 @@ before_script:
 script:
 - ls -al
 - dep ensure
-- go test ${gobuild_args} ./...  # Run all the tests with the race detector enabled
+- go test -covermode=atomic -coverprofile=coverage.txt -v -race ./...  # Run all the tests with the race detector enabled
 - ls -al
 
 after_success:
