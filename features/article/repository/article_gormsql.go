@@ -4,11 +4,11 @@ import (
 	"context"
 	"github.com/sirupsen/logrus"
 
-	"github.com/mochadwi/go-article/article"
-	"github.com/mochadwi/go-article/models"
-	"github.com/jinzhu/gorm"
-	"strconv"
 	"fmt"
+	"github.com/jinzhu/gorm"
+	"github.com/mochadwi/go-article/features/article"
+	"github.com/mochadwi/go-article/models"
+	"strconv"
 )
 
 type gormsqlArticleRepository struct {
@@ -58,8 +58,7 @@ func (m *gormsqlArticleRepository) GetByTitle(ctx context.Context, title string)
 	if errQuery := models.
 		NewArticleQuerySet(m.Conn).
 		TitleEq(title).
-		One(&ac);
-		errQuery != nil {
+		One(&ac); errQuery != nil {
 		//fmt.Print("[repo error]: ")
 		//fmt.Println(ac)
 
@@ -109,8 +108,7 @@ func (m *gormsqlArticleRepository) Update(ctx context.Context, ar *models.Articl
 			SetContent(ar.Content).
 			SetThumbnail(ar.Thumbnail).
 			SetTitle(ar.Title).
-			Update();
-		err != nil {
+			Update(); err != nil {
 		return nil, err
 	} // end Update
 

@@ -9,14 +9,12 @@ import (
 
 	"github.com/mochadwi/go-article/models"
 
-	articleUcase "github.com/mochadwi/go-article/article"
 	"github.com/labstack/echo"
+	articleUcase "github.com/mochadwi/go-article/features/article"
 
+	"fmt"
 	"gopkg.in/go-playground/validator.v9"
 	"time"
-	"fmt"
-	"github.com/mochadwi/go-article/article/template/gofiles"
-	"bytes"
 )
 
 type HttpArticleHandler struct {
@@ -59,17 +57,7 @@ func (a *HttpArticleHandler) GetAll(c echo.Context) error {
 
 	c.Response().Header().Set(`X-Cursor`, nextCursor)
 
-	buffer := new(bytes.Buffer)
-
-	var articles []string
-	for _, article := range *listAr {
-		articles = append(articles, article.Title)
-	}
-
-	gofiles.ArticleList(articles, buffer)
-	return c.HTMLBlob(response.Code, buffer.Bytes())
-
-	//return c.JSON(response.Code, response)
+	return c.JSON(response.Code, response)
 }
 
 func (a *HttpArticleHandler) GetByTitle(c echo.Context) error {

@@ -7,12 +7,12 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	models "github.com/mochadwi/go-article/models"
+	"github.com/mochadwi/go-article/models"
 
-	articleUcase "github.com/mochadwi/go-article/article"
 	"github.com/labstack/echo"
+	articleUcase "github.com/mochadwi/go-article/features/article"
 
-	validator "gopkg.in/go-playground/validator.v9"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type ResponseError struct {

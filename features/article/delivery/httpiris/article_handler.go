@@ -9,14 +9,14 @@ import (
 
 	"github.com/mochadwi/go-article/models"
 
-	articleUcase "github.com/mochadwi/go-article/article"
 	"github.com/labstack/echo"
+	articleUcase "github.com/mochadwi/go-article/features/article"
 
+	"bytes"
+	"fmt"
+	"github.com/mochadwi/go-article/features/article/template/gofiles"
 	"gopkg.in/go-playground/validator.v9"
 	"time"
-	"fmt"
-	"github.com/mochadwi/go-article/article/template/gofiles"
-	"bytes"
 )
 
 type HttpArticleHandler struct {

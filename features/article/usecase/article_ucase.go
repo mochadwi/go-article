@@ -4,8 +4,10 @@ import (
 	"context"
 	"time"
 
+	"fmt"
+	"github.com/jinzhu/gorm"
+	"github.com/mochadwi/go-article/features/article"
 	"github.com/mochadwi/go-article/models"
-	"github.com/mochadwi/go-article/article"
 )
 
 type articleUsecase struct {
@@ -20,7 +22,7 @@ func NewArticleUsecase(a article.ArticleRepository, timeout time.Duration) artic
 	}
 }
 
-func (a *articleUsecase) GetAll(c context.Context, cursor string, num int64) ([]*models.Article, string, error) {
+func (a *articleUsecase) GetAll(c context.Context, cursor string, num int64) (*[]*models.Article, string, error) {
 	if num == 0 {
 		num = 10
 	}
@@ -43,9 +45,13 @@ func (a *articleUsecase) GetByID(c context.Context, id int64) (*models.Article, 
 
 	res, err := a.articleRepos.GetByID(ctx, id)
 	if err != nil {
+		fmt.Print("[usecase error] GetById: ")
+		fmt.Println(res)
 		return nil, err
 	}
 
+	fmt.Print("[usecase success] GetById: ")
+	fmt.Println(res)
 	return res, nil
 }
 
@@ -53,6 +59,16 @@ func (a *articleUsecase) Update(c context.Context, ar *models.Article) (*models.
 
 	ctx, cancel := context.WithTimeout(c, a.contextTimeout)
 	defer cancel()
+
+	_, err := a.GetByID(ctx, ar.ID)
+	if err != nil {
+		return nil, models.NOT_FOUND_ERROR
+	}
+
+	existedArticle, _ := a.GetByTitle(ctx, ar.Title)
+	if existedArticle != nil {
+		return nil, models.CONFLIT_ERROR
+	}
 
 	ar.UpdatedAt = time.Now()
 	return a.articleRepos.Update(ctx, ar)
@@ -64,8 +80,15 @@ func (a *articleUsecase) GetByTitle(c context.Context, title string) (*models.Ar
 	defer cancel()
 	res, err := a.articleRepos.GetByTitle(ctx, title)
 	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, models.NOT_FOUND_ERROR
+		}
+
 		return nil, err
 	}
+
+	//fmt.Print("Ucase: ")
+	//fmt.Println(res)
 
 	return res, nil
 }
