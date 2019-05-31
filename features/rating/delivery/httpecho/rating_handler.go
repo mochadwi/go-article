@@ -1,7 +1,6 @@
 package httpecho
 
 import (
-	"context"
 	"net/http"
 	"strconv"
 
@@ -34,12 +33,7 @@ func (a *HttpRatingHandler) GetByID(c echo.Context) error {
 		return c.JSON(response.Code, response)
 	}
 
-	ctx := c.Request().Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	art, err := a.AUsecase.GetByID(ctx, lessonId)
+	art, err := a.AUsecase.GetByID(c.Request().Context(), lessonId)
 
 	if err != nil {
 		response.Code = baseHandler.GetStatusCode(err)
@@ -81,12 +75,7 @@ func (a *HttpRatingHandler) Create(c echo.Context) error {
 		return c.JSON(response.Code, response)
 	}
 
-	ctx := c.Request().Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	ar, err := a.AUsecase.Create(ctx, &rating)
+	ar, err := a.AUsecase.Create(c.Request().Context(), &rating)
 
 	if err != nil {
 		response.Code = baseHandler.GetStatusCode(err)
