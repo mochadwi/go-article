@@ -12,7 +12,8 @@ import (
 // Rating struct represent rating model. Next line (gen:qs) is needed to autogenerate RatingQuerySet.
 // gen:qs
 type Rating struct {
-	ID           int64      `json:"userId" validate:"required"`
+	ID           int64      `json:"id"`
+	UserID       int64      `json:"userId" validate:"required"`
 	LessonID     int64      `json:"lessonId" validate:"required"`
 	RatingNumber int64      `json:"rating" validate:"required"`
 	UpdatedAt    time.Time  `json:"updated_at"`

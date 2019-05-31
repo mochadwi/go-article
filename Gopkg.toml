@@ -58,9 +58,5 @@
   name = "github.com/satori/go.uuid"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/vektra/mockery"
-
-[[constraint]]
   name = "github.com/bxcodec/faker"
   version = "2.0.1"

@@ -13,17 +13,6 @@
   version = "v2.0.1"
 
 [[projects]]
-  digest = "1:9437ea4c4b6c342e4bf711c93209a0643f6d011e92030925ad56b9acd1e6b95a"
-  name = "github.com/bxcodec/go-clean-arch"
-  packages = [
-    "article/mocks",
-    "models",
-  ]
-  pruneopts = "UT"
-  revision = "f874559e929cbc74823d52a0b65b8241da398a22"
-  version = "v2.0.1"
-
-[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -376,7 +365,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/bxcodec/faker",
-    "github.com/bxcodec/go-clean-arch/article/mocks",
     "github.com/go-sql-driver/mysql",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/postgres",
