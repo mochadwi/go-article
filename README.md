@@ -12,6 +12,7 @@ This is an article management with replica of Clean Architecture in (Golang) pro
 
 ### How To Run This Project
 - Clone this repository `go get github.com/mochadwi/go-article`
+- Make sure to create a `config.json`. This is ignored, due to private credentials
 - `cd $GOPATH/src/mochadwi/go-article`
 - Run `dep ensure`
 - Run `make`
