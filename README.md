@@ -1,11 +1,11 @@
 # go-article
-[![Build Status](https://travis-ci.com/mochadwi/go-article.svg?branch=develop)](https://travis-ci.com/mochadwi/go-article)[![codecov](https://codecov.io/gh/mochadwi/go-article/branch/master/graph/badge.svg)](https://codecov.io/gh/mochadwi/go-article)
+[![Build Status](https://travis-ci.com/mochadwi/go-article.svg?branch=master)](https://travis-ci.com/mochadwi/go-article)[![codecov](https://codecov.io/gh/mochadwi/go-article/branch/master/graph/badge.svg)](https://codecov.io/gh/mochadwi/go-article)
 
 ### Description
 This is an article management with replica of Clean Architecture in (Golang) projects.
 
 ### Requirements
-- Go 1.9+
+- Go 1.12+
 - Dep
 
 ### Tools Used:
@@ -14,6 +14,7 @@ This is an article management with replica of Clean Architecture in (Golang) pro
 ### How To Run This Project
 - Clone this repository `go get github.com/mochadwi/go-article`
 - Make sure to create a `config.json`. This is ignored, due to private credentials
+- Install and run your postgres 11.2 DB `pg_ctl -D /path/to/postgres star`
 - `cd $GOPATH/src/mochadwi/go-article`
 - Run `dep ensure`
 - Run `make`
