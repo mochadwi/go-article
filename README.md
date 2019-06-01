@@ -13,13 +13,13 @@ This is an article management with replica of Clean Architecture in (Golang) pro
 
 ### How To Run This Project
 - Clone this repository `go get github.com/mochadwi/go-article`
-- Make sure to create a `config.json`. This is ignored, due to private credentials
+- Make sure to modify a `config.json` on this repo is only a placholder.
 - Install and run your postgres 11.2 DB `pg_ctl -D /path/to/postgres star`
 - `cd $GOPATH/src/mochadwi/go-article`
 - Run `dep ensure`
 - Run `make`
-- Run `gin -a 9090 article_clean` or `./gin-bin`
-- Run postman on `localhost:9090 # default gin auto-reload port`
+- Run `gin -p 9091 -a 9090 article_clean` or `./gin-bin`
+- Run postman on `localhost:9091`
 - Happy coding
 
 ### Install using script
