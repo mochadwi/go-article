@@ -56,3 +56,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/satori/go.uuid"
+
+[[constraint]]
+  name = "github.com/bxcodec/faker"
+  version = "2.0.1"

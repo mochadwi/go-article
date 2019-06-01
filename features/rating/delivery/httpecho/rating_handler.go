@@ -1,7 +1,6 @@
 package httpecho
 
 import (
-	"context"
 	"net/http"
 	"strconv"
 
@@ -19,8 +18,8 @@ type HttpRatingHandler struct {
 
 func (a *HttpRatingHandler) GetByID(c echo.Context) error {
 
-	idParam, err := strconv.Atoi(c.Param("lessonId"))
-	lessonId := int64(idParam)
+	lessonIdParam, err := strconv.Atoi(c.Param("lessonId"))
+	lessonId := int64(lessonIdParam)
 
 	var response = &models.BaseResponse{
 		RequestID: baseHandler.GetUUID(string(lessonId)),
@@ -29,17 +28,12 @@ func (a *HttpRatingHandler) GetByID(c echo.Context) error {
 
 	if err != nil {
 		response.Code = http.StatusUnprocessableEntity
-		response.Message = string(err.Error())
+		response.Message = "The Lesson ID must be a number"
 
 		return c.JSON(response.Code, response)
 	}
 
-	ctx := c.Request().Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	art, err := a.AUsecase.GetByID(ctx, lessonId)
+	art, err := a.AUsecase.GetByID(c.Request().Context(), lessonId)
 
 	if err != nil {
 		response.Code = baseHandler.GetStatusCode(err)
@@ -81,12 +75,7 @@ func (a *HttpRatingHandler) Create(c echo.Context) error {
 		return c.JSON(response.Code, response)
 	}
 
-	ctx := c.Request().Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	ar, err := a.AUsecase.Create(ctx, &rating)
+	ar, err := a.AUsecase.Create(c.Request().Context(), &rating)
 
 	if err != nil {
 		response.Code = baseHandler.GetStatusCode(err)
